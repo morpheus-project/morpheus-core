@@ -10,8 +10,6 @@ Morpheus-Framework
 
 
 
-
-
 Installation
 ============
 
@@ -55,23 +53,108 @@ that are inputs.
         window_shape
     )
 
+``output_hduls`` is a list of ``astropy.io.fits.HDUList`` objects that
+correspond to the ``output_arrays`` if ``model_inputs`` are strings. If
+``model_inputs`` are ``numpy`` arrays then this is an empty list.
+``output_arrays`` is a list containing the ``morpheus_framework`` aggregated
+classifications and the ``n`` array indicating how many times each pixel in the
+image was classified by the ``model``.
+
 Output Format
 -------------
 
+``morpheus_framework`` can aggregate multiple outputs for single pixels in one
+of two ways. The first is by recording the mean and the variance for predictions
+for each class in each pixel. This is stored by adding an extra dimenion in the
+output array. For example, if the input array has a shape of ``[1000, 1000, 1]``
+and ``n_classes=3`` then the output array will have the shape
+``[1000, 1000, 3, 2]`` where the 3rd dimenion is the number of classes and the
+last dimension are the mean and the variance in that order. The other method
+for aggregating outputs is by a "rank vote" method. Which keeps a running tally
+of how many times a class was the top classification and then divides by ``n``.
+The output shape for the rank vote aggregation for the same input array
+would be ``[1000, 1000, 3]``.
 
 Parallelization
 ---------------
 
-``morpheus_framework`` supports the parallel classification of large images
-by splitting the input along the first dimension (height typically), classifying
-each piece in parallel, and then combining the resulting classifications into
-a single classified image.
+``morpheus_framework`` supports the parallel classification of large images by
+splitting the input along the first dimension (height typically), classifying
+each piece in parallel, and then combining the resulting classifications into a
+single classified image. You can parallelize over GPUS or CPUS, both methods
+require that the ``out_dir`` be provided so that ``morpheus_framework`` knows
+where to save the subsets of the images and their classifications. Further your
+model gets saved into each subdirectory via ``pickle`` and so ``model`` must be
+a pickleable function.
 
-GPU
-***
+GPUs
+****
 
-CPU
-***
+To parallelize the classification of a large image over multiple GPUs, the
+``gpus`` argument must be provided and should be a list of the integer GPU ids
+for the GPUs to use. Each GPU will be assigned to one split of the input. You
+can get the GPU ids by running ``nvidia-smi`` on your system. Currently only
+NVIDIA GPUs are supported.
+
+.. code-block:: python
+
+    from morpheus_framework import morpheus_framework
+
+    n_classes = 5             # number of classes that are output from the model
+    batch_size = 16           # number of samples to extract per batch
+    window_shape = (100, 100) # (height, width) of each sample
+    gpus = [0, 1, 2]          # GPUs to use
+    out_dir="."
+
+    output_hduls, output_arrays = morpheus_framework.predict(
+        model,        # your model in a callable from
+        model_inputs, # list of numpy arrays or strings that point to fits files
+        n_classes,
+        batch_size,
+        window_shape,
+        gpus=gpus,
+        out_dir="."
+    )
+
+The above example will split ``model_inputs`` along the first dimenion three
+ways equally, into three subdirectories within ``out_dir`, called "0", "1", "2".
+After each subprocesses has finished classifying the image,
+``morpheus_framework`` stiches each of the outputs in the subdirectories into
+a single large output in ``out_dir`` and removes the subdirectories.
+
+CPUs
+****
+
+To parallelize the classification of a large image over multiple CPUs, the
+``cpus`` argument must be provided and an integer indicating how many processes
+to use for parallelization. Each process will be assigned to one split of the
+input.
+
+.. code-block:: python
+
+    from morpheus_framework import morpheus_framework
+
+    n_classes = 5             # number of classes that are output from the model
+    batch_size = 16           # number of samples to extract per batch
+    window_shape = (100, 100) # (height, width) of each sample
+    cpus = 3                  # Number of processes to use
+    out_dir="."
+
+    output_hduls, output_arrays = morpheus_framework.predict(
+        model,        # your model in a callable from
+        model_inputs, # list of numpy arrays or strings that point to fits files
+        n_classes,
+        batch_size,
+        window_shape,
+        cpus=cpus,
+        out_dir="."
+    )
+
+The above example will split ``model_inputs`` along the first dimenion three
+ways equally, into three subdirectories within ``out_dir`, called "0", "1", "2".
+After each subprocesses has finished classifying the image,
+``morpheus_framework`` stiches each of the outputs in the subdirectories into
+a single large output in ``out_dir`` and removes the subdirectories.
 
 
 Citation

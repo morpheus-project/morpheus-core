@@ -147,6 +147,7 @@ def get_windowed_index_generator(
 def get_final_map(
     total_shape: Tuple[int, int],
     update_mask_shape: Tuple[int, int],
+    stride: Tuple[int, int],
     output_idx: Tuple[int, int],
 ) -> List[Tuple[int, int]]:
     """Creates a boolean array indicating which pixels have completed classification.
@@ -156,6 +157,8 @@ def get_final_map(
                                        indices in the array should be updated
         update_mask_shape (Tuple[int, int]): The (height, width) of the update
                                              mask
+        stride (Tuple[int, int]): The distance, in pixels, to move along the
+                                  (height, width) of the image.
         output_idx (Tuple[int, int]): the y, x value that idicate where in the
                                       image the update is happening
 
@@ -165,22 +168,23 @@ def get_final_map(
     """
 
     y, x = output_idx
+    stride_y, stride_x = stride
 
     window_y, window_x = update_mask_shape
 
-    end_y = y == (total_shape[0] - window_y)
-    end_x = x == (total_shape[1] - window_x)
+    end_y = y == (total_shape[0] - window_y - (total_shape[0] % stride_y))
+    end_x = x == (total_shape[1] - window_x - (total_shape[1] % stride_x))
 
     if end_y and end_x:  # final image
         idxs = product(range(window_y), range(window_x))
     elif end_y:  # final row
-        idxs = zip(range(window_y), repeat(0))
+        idxs = product(range(window_y), range(stride_x))
     elif end_x:  # final column
-        idxs = zip(repeat(0), range(window_x))
+        idxs = product(range(stride_y), range(window_x))
     else:  # any other typical image
-        idxs = [(0, 0)]
+        idxs = product(range(stride_y), range(stride_x))
 
-    return idxs
+    return list(idxs)
 
 
 def update_n(
@@ -232,7 +236,6 @@ def iterative_mean(
         An array with the same shape as the curr_mean with the updated mean
         values
     """
-
     n[n == 0] = 1
     return curr_mean + ((x_n - curr_mean) / n * update_mask)
 
@@ -313,6 +316,9 @@ def update_single_class_mean_var(
     prev_var = mean_var[:, :, 1].copy()
 
     next_mean = iterative_mean(n, prev_mean, x_n, update_mask)
+    print("===================================================================")
+    print(prev_mean[0, 0], next_mean[0, 0])
+    print("===================================================================")
     next_var = iterative_variance(prev_var, x_n, prev_mean, next_mean, update_mask)
 
     return next_mean, next_var
@@ -320,6 +326,7 @@ def update_single_class_mean_var(
 
 def update_mean_var(
     update_mask: np.ndarray,
+    stride: Tuple[int, int],
     n: np.ndarray,
     output: np.ndarray,
     single_out: np.ndarray,
@@ -329,7 +336,9 @@ def update_mean_var(
 
     Args:
         update_mask (np.ndarray): a 2d boolean array indicating which
-                                    indices in the array should be updated
+                                  indices in the array should be updated
+        stride (Tuple[int, int]): How many (rows, columns) to move through the
+                                  image at each iteration.
         n (np.ndarray): a 2d array containing the number of terms used in the
                         mean
         output (np.ndarray): The current running output array containing the
@@ -354,8 +363,9 @@ def update_mean_var(
     update_n(update_mask, n, output_idx)
     batch_ns = n[ys, xs].copy()
 
-    x_ns = map(extract_batch_out_class_values, range(single_out.shape[2]))
-    single_class_values = map(extract_output_class_values, range(output.shape[2]))
+    n_classes = single_out.shape[2]
+    x_ns = map(extract_batch_out_class_values, range(n_classes))
+    single_class_values = map(extract_output_class_values, range(n_classes))
 
     # update partial function
     update_f = partial(update_single_class_mean_var, update_mask, batch_ns)
@@ -364,7 +374,7 @@ def update_mean_var(
     next_means, next_vars = zip(*map(update_f, single_class_values, x_ns))
 
     # finalize variance values
-    final_map = get_final_map(n.shape, update_mask.shape, output_idx)
+    final_map = get_final_map(n.shape, update_mask.shape, stride, output_idx)
     final_f = partial(finalize_variance, batch_ns, final_map)
     final_vars = map(final_f, next_vars)
 
@@ -407,6 +417,7 @@ def finalize_rank_vote(
 
 def update_rank_vote(
     update_mask: np.ndarray,
+    stride: Tuple[int, int],
     n: np.ndarray,
     output: np.ndarray,
     single_output: np.ndarray,
@@ -418,6 +429,8 @@ def update_rank_vote(
     Args:
         update_mask (np.ndarray): a 2d boolean array indicating which
                                   indices in the array should be updated
+        stride (Tuple[int, int]): How many (rows, columns) to move through the
+                                  image at each iteration.
         n (np.ndarray): an array containing the total number of times a each
                         pixel has been classified
         output (np.ndarray): an array containing the current running
@@ -446,7 +459,7 @@ def update_rank_vote(
         [update_mask * top_votes[:, :, i] for i in range(top_votes.shape[2])]
     )
 
-    final_map = get_final_map(n.shape, update_mask.shape, output_idx)
+    final_map = get_final_map(n.shape, update_mask.shape, stride, output_idx)
     finalized_values = finalize_rank_vote(
         n[ys, xs].copy(), final_map, output[ys, xs, :].copy() + update
     )

@@ -189,6 +189,7 @@ def test_get_final_map_final():
 
     total_shape = (100, 100)
     update_mask_shape = (10, 10)
+    stride = (1, 1)
     output_idx = (
         total_shape[0] - update_mask_shape[0],
         total_shape[1] - update_mask_shape[1],
@@ -196,7 +197,7 @@ def test_get_final_map_final():
 
     expected_idx = product(range(update_mask_shape[0]), range(update_mask_shape[1]))
 
-    actual_idx = lh.get_final_map(total_shape, update_mask_shape, output_idx)
+    actual_idx = lh.get_final_map(total_shape, update_mask_shape, stride, output_idx)
 
     assert all([a == b for a, b in zip(expected_idx, actual_idx)])
 
@@ -207,11 +208,12 @@ def test_get_final_map_end_y():
 
     total_shape = (100, 100)
     update_mask_shape = (10, 10)
+    stride = (1, 1)
     output_idx = (total_shape[0] - update_mask_shape[0], 0)
 
     expected_idx = zip(range(update_mask_shape[0]), repeat(0, update_mask_shape[1]))
 
-    actual_idx = lh.get_final_map(total_shape, update_mask_shape, output_idx)
+    actual_idx = lh.get_final_map(total_shape, update_mask_shape, stride, output_idx)
 
     assert all([a == b for a, b in zip(expected_idx, actual_idx)])
 
@@ -222,11 +224,12 @@ def test_get_final_map_end_x():
 
     total_shape = (100, 100)
     update_mask_shape = (10, 10)
+    stride = (1, 1)
     output_idx = (0, total_shape[1] - update_mask_shape[1])
 
     expected_idx = zip(repeat(0, update_mask_shape[0]), range(update_mask_shape[1]))
 
-    actual_idx = lh.get_final_map(total_shape, update_mask_shape, output_idx)
+    actual_idx = lh.get_final_map(total_shape, update_mask_shape, stride, output_idx)
 
     assert all([a == b for a, b in zip(expected_idx, actual_idx)])
 
@@ -237,12 +240,13 @@ def test_get_final_map_first():
 
     total_shape = (100, 100)
     update_mask_shape = (10, 10)
+    stride = (1, 1)
     output_idx = (0, 0)
     expected_idx = [(0, 0)]
 
-    actual_idx = lh.get_final_map(total_shape, update_mask_shape, output_idx)
+    actual_idx = lh.get_final_map(total_shape, update_mask_shape, stride, output_idx)
 
-    assert actual_idx == expected_idx
+    assert list(actual_idx) == expected_idx
 
 
 @pytest.mark.unit
@@ -349,6 +353,7 @@ def test_update_mean_var():
 
     window_shape = (10, 10)
     total_shape = (100, 100)
+    stride = (1, 1)
 
     update_mask = np.ones(window_shape)
     n = np.zeros(total_shape)
@@ -356,7 +361,7 @@ def test_update_mean_var():
     batch_output = np.ones((10, 10, 1))
     output_idx = (0, 0)
 
-    lh.update_mean_var(update_mask, n, output_array, batch_output, output_idx)
+    lh.update_mean_var(update_mask, stride, n, output_array, batch_output, output_idx)
 
     assert output_array[:, :, :, 0].sum() == 100
     assert output_array[:, :, :, 1].sum() == 0
@@ -382,6 +387,7 @@ def test_update_rank_vote():
 
     window_shape = (10, 10)
     total_shape = (100, 100)
+    stride = (1, 1)
 
     update_mask = np.ones(window_shape)
     n = np.zeros(total_shape)
@@ -395,7 +401,7 @@ def test_update_rank_vote():
     )
     output_idx = (0, 0)
 
-    lh.update_rank_vote(update_mask, n, output, single_output, output_idx)
+    lh.update_rank_vote(update_mask, stride, n, output, single_output, output_idx)
 
     expected_output = np.dstack(
         [np.ones(window_shape) * 0, np.ones(window_shape) * 0, np.ones(window_shape)]

@@ -21,7 +21,7 @@
 # ==============================================================================
 
 import os
-from functools import partial, reduce
+from functools import partial
 from itertools import islice, repeat, starmap, takewhile
 from typing import Callable, List, Tuple, Union
 
@@ -101,6 +101,7 @@ def predict_batch(
 def update_output(
     aggregate_method: str,
     update_map: np.ndarray,
+    stride: Tuple[int, int],
     n: np.ndarray,
     outputs: np.ndarray,
     batch_out: np.ndarray,
@@ -115,6 +116,8 @@ def update_output(
                                 record output as the normalized vote count.
         update_map (np.ndarray): A boolean mask that indicates what pixels in
                                  in each example to update
+        stride (Tuple[int, int]): How many (rows, columns) to move through the
+                                  image at each iteration.
         n (np.ndarray): The array containing the n values
         outputs (np.ndarray): The array containing the aggregated output values
         batch_out (np.ndarray): The output from the model to incorporate into
@@ -131,9 +134,13 @@ def update_output(
     """
 
     if aggregate_method == AGGREGATION_METHODS.MEAN_VAR:
-        label_helper.update_mean_var(update_map, n, outputs, batch_out, batch_idx)
+        label_helper.update_mean_var(
+            update_map, stride, n, outputs, batch_out, batch_idx
+        )
     elif aggregate_method == AGGREGATION_METHODS.RANK_VOTE:
-        label_helper.update_rank_vote(update_map, n, outputs, batch_out, batch_idx)
+        label_helper.update_rank_vote(
+            update_map, stride, n, outputs, batch_out, batch_idx
+        )
     else:
         raise ValueError(AGGREGATION_METHODS.INVALID_ERR)
 
@@ -141,6 +148,7 @@ def update_output(
 def udpate_batch(
     aggregate_method: str,
     update_map: np.ndarray,
+    stride: Tuple[int, int],
     n: np.ndarray,
     outputs: np.ndarray,
     batch_out: np.ndarray,  # [n, w, h, c]
@@ -155,6 +163,8 @@ def udpate_batch(
                                 record output as the normalized vote count.
         update_map (np.ndarray): A boolean mask that indicates what pixels in
                                  in each example to update
+        stride (Tuple[int, int]): How many (rows, columns) to move through the
+                                  image at each iteration.
         n (np.ndarray): The array containing the n values
         outputs (np.ndarray): The array containing the aggregated output values
         batch_out (np.ndarray): The output from the model to incorporate into
@@ -166,7 +176,7 @@ def udpate_batch(
         None
     """
 
-    update_f = partial(update_output, aggregate_method, update_map, n, outputs)
+    update_f = partial(update_output, aggregate_method, update_map, stride, n, outputs)
     misc_helper.apply(update_f, zip(batch_out, batch_idxs))
 
 
@@ -180,7 +190,7 @@ def predict_arrays(
     update_map: np.ndarray = None,
     aggregate_method: str = AGGREGATION_METHODS.RANK_VOTE,
     out_dir: str = None,
-):
+) -> Tuple[List[fits.HDUList], List[np.ndarray]]:
     """Uses applies the given model on the given inputs and returns the output.
 
     Args:
@@ -200,10 +210,13 @@ def predict_arrays(
                                 record output as the normalized vote count.
         out_dir (str): Where to store the output arrays
     """
-
+    model_inputs = list(map(np.atleast_3d, model_inputs))
     in_shape = model_inputs[0].shape[:-1]
     out_shape = [*in_shape, n_classes]
     out_dir_f = lambda s: os.path.join(out_dir, s) if out_dir else None
+
+    if update_map is None:
+        update_map = np.ones(window_shape)
 
     if aggregate_method == AGGREGATION_METHODS.MEAN_VAR:
         hdul_lbl, arr_lbl = label_helper.get_mean_var_array(
@@ -225,6 +238,7 @@ def predict_arrays(
     num_idxs = ((in_shape[0] - window_dim0 + 1) // stride_dim0) * (
         (in_shape[1] - window_dim1 + 1) // stride_dim1
     )
+
     pbar = tqdm(total=num_idxs // batch_size, desc="classifying", unit="batch")
 
     batch_generator = (list(islice(indicies, batch_size)) for _ in repeat(None))
@@ -241,7 +255,7 @@ def predict_arrays(
         pass
     else:
         update_func = partial(
-            udpate_batch, aggregate_method, update_map, arr_n, arr_lbl
+            udpate_batch, aggregate_method, update_map, stride, arr_n, arr_lbl
         )
 
         for _ in starmap(update_func, starmap(classify_func, batches_and_idxs)):
@@ -266,7 +280,7 @@ def predict(
     gpus: List[int] = None,
     cpus: int = None,
     parallel_check_interval: float = 1,
-):
+) -> Tuple[List[fits.HDUList], List[np.ndarray]]:
     """Applies the `model` the `model_inputs`
 
     If you are using the parallel functionality, then `model` must be pickleable.
@@ -302,12 +316,13 @@ def predict(
         ValueError if `model_inputs` are not all of the same type
         ValueError if `model_inputs` are not str or np.ndarray
         ValueError if both gpus and cpus are given
+        ValueError is cpus or gpus are given, but out_dir is not given
         ValueError if len(gpus)==1
         ValueError if cpus<2
     """
 
     inputs_are_str = misc_helper.vaidate_input_types_is_str(model_inputs)
-    workers, is_gpu = misc_helper.validate_parallel_params(gpus, cpus)
+    workers, is_gpu = misc_helper.validate_parallel_params(gpus, cpus, out_dir)
 
     if inputs_are_str:
         in_hduls, inputs = fits_helper.open_files(model_inputs, "readonly")
@@ -333,10 +348,12 @@ def predict(
             model_inputs,
             n_classes,
             batch_size,
+            window_shape,
             stride,
             update_map,
             aggregate_method,
             out_dir,
+            workers
         )
 
         parallel_helper.run_parallel_jobs(

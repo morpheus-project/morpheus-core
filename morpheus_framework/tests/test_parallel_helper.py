@@ -95,7 +95,7 @@ def test_make_runnable_file():
         "import pickle",
         "import numpy as np",
         "from tqdm import tqdm",
-        "from morpheus_framework import predict",
+        "from morpheus_framework import morpheus_framework",
         "def main():",
         "    output_dir = './output'",
         "    if 'output' not in os.listdir():",
@@ -267,6 +267,7 @@ def test_monitor_procs():
 
 # TODO: This test feels hacky and will likely have issues depending on cpu,
 #      write a test that detects running subprocess
+@pytest.mark.flaky(reruns=5)
 @pytest.mark.integration
 def test_run_parallel_jobs():
     """Tests morpheus_framework.helpers.parallel_helper.run_parallel_jobs"""

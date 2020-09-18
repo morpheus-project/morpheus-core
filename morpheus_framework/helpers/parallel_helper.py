@@ -134,7 +134,7 @@ def make_runnable_file(
         "import pickle",
         "import numpy as np",
         "from tqdm import tqdm",
-        "from morpheus_framework import predict",
+        "from morpheus_framework import morpheus_framework",
         "def main():",
         "    output_dir = './output'",
         "    if 'output' not in os.listdir():",

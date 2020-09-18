@@ -45,3 +45,5 @@ ENV/
 
 .vscode
 .history
+
+docs/_build/

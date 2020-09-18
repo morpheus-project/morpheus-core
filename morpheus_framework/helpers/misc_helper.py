@@ -19,7 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 # ==============================================================================
-from itertools import islice
 from typing import Callable, Iterable, List, Tuple, Union
 
 import numpy as np
@@ -53,7 +52,7 @@ def vaidate_input_types_is_str(inputs: List[Union[str, np.ndarray]]) -> bool:
 
 
 def validate_parallel_params(
-    gpus: List[int] = None, cpus: int = None
+    gpus: List[int] = None, cpus: int = None, out_dir: str = None
 ) -> Tuple[List[int], bool]:
     """Validates that the parallel params.
 
@@ -66,6 +65,7 @@ def validate_parallel_params(
         they are cpu ids
     Raises:
         ValueError if both gpus and cpus are given
+        ValueError is cpus or gpus are given, but out_dir is not given
         ValueError if len(gpus)==1
         ValueError if cpus<2
     """
@@ -74,6 +74,9 @@ def validate_parallel_params(
 
     if (gpus is None) and (cpus is None):
         return [0], False
+
+    if (gpus is not None or cpus is not None) and (out_dir is None):
+        raise ValueError("Parallel classification requires an out_dir")
 
     if gpus is not None:
         if len(gpus) == 1:

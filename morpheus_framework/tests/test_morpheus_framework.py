@@ -75,7 +75,7 @@ def test_update_output_fails_invalid_choice():
 
     with pytest.raises(ValueError):
         morpheus_framework.update_output(
-            invalid_aggregate_method, None, None, None, None, None
+            invalid_aggregate_method, None, None, None, None, None, None
         )
 
 
@@ -105,13 +105,14 @@ def test_update_output_mean_var():
 
     aggregate_method = morpheus_framework.AGGREGATION_METHODS.MEAN_VAR
     update_map = np.ones([10, 10])
+    stride = (1, 1)
     n = np.zeros([100, 100])
     outputs = np.zeros([100, 100, 1, 2])
     batch_out = np.ones([10, 10, 1])
     batch_idxs = (0, 0)
 
     morpheus_framework.update_output(
-        aggregate_method, update_map, n, outputs, batch_out, batch_idxs
+        aggregate_method, update_map, stride, n, outputs, batch_out, batch_idxs
     )
 
     assert n[0:10, 0:10].all()
@@ -125,13 +126,14 @@ def test_update_output_rank_vote():
 
     aggregate_method = morpheus_framework.AGGREGATION_METHODS.RANK_VOTE
     update_map = np.ones([10, 10])
+    stride = (1, 1)
     n = np.zeros([100, 100])
     outputs = np.zeros([100, 100, 1])
     batch_out = np.ones([10, 10, 1])
     batch_idxs = (0, 0)
 
     morpheus_framework.update_output(
-        aggregate_method, update_map, n, outputs, batch_out, batch_idxs
+        aggregate_method, update_map, stride, n, outputs, batch_out, batch_idxs
     )
 
     assert n[0:10, 0:10].all()

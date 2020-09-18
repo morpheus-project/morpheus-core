@@ -71,9 +71,10 @@ def test_validate_parallel_params_fails_for_both_given():
 
     gpus = [0, 1]
     cpus = [3]
+    out_dir = None
 
     with pytest.raises(ValueError):
-        mh.validate_parallel_params(gpus, cpus)
+        mh.validate_parallel_params(gpus, cpus, out_dir)
 
 
 @pytest.mark.unit
@@ -82,11 +83,12 @@ def test_validate_parallel_params_passes_both_none():
 
     gpus = None
     cpus = None
+    out_dir = None
 
     expected_workers = [0]
     expected_is_gpu = False
 
-    actual_workers, actual_is_gpu = mh.validate_parallel_params(gpus, cpus)
+    actual_workers, actual_is_gpu = mh.validate_parallel_params(gpus, cpus, out_dir)
 
     assert actual_workers == expected_workers
     assert actual_is_gpu == expected_is_gpu
@@ -98,9 +100,22 @@ def test_validate_parallel_params_fails_single_gpu():
 
     gpus = [0]
     cpus = None
+    out_dir = "."
 
     with pytest.raises(ValueError):
-        mh.validate_parallel_params(gpus, cpus)
+        mh.validate_parallel_params(gpus, cpus, out_dir)
+
+
+@pytest.mark.unit
+def test_validate_parallel_params_fails_no_out_dir():
+    """Test morpheus_framework.helper.misc_helper.validate_parallel_params"""
+
+    gpus = [0, 1]
+    cpus = None
+    out_dir = None
+
+    with pytest.raises(ValueError):
+        mh.validate_parallel_params(gpus, cpus, out_dir)
 
 
 @pytest.mark.unit
@@ -109,11 +124,12 @@ def test_validate_parallel_params_passes_multi_gpu():
 
     gpus = [0, 1]
     cpus = None
+    out_dir = "."
 
     expected_workers = gpus
     expected_is_gpu = True
 
-    actual_workers, actual_is_gpu = mh.validate_parallel_params(gpus, cpus)
+    actual_workers, actual_is_gpu = mh.validate_parallel_params(gpus, cpus, out_dir)
 
     assert actual_workers == expected_workers
     assert actual_is_gpu == expected_is_gpu
@@ -125,9 +141,10 @@ def test_validate_parallel_params_fails_cpus_lt_2():
 
     gpus = None
     cpus = 1
+    out_dir = "."
 
     with pytest.raises(ValueError):
-        mh.validate_parallel_params(gpus, cpus)
+        mh.validate_parallel_params(gpus, cpus, out_dir)
 
 
 @pytest.mark.unit
@@ -136,11 +153,12 @@ def test_validate_parallel_params_passes_multi_cpu():
 
     gpus = None
     cpus = 3
+    out_dir = "."
 
     expected_workers = np.arange(cpus)
     expected_is_gpu = False
 
-    actual_workers, actual_is_gpu = mh.validate_parallel_params(gpus, cpus)
+    actual_workers, actual_is_gpu = mh.validate_parallel_params(gpus, cpus, out_dir)
 
     np.testing.assert_array_equal(actual_workers, expected_workers)
     assert actual_is_gpu == expected_is_gpu
