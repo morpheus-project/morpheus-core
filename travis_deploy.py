@@ -43,6 +43,7 @@ TRAVIS_PWD = os.environ["TRAVIS_PWD"]
 LOCAL = os.environ.get("TRAVIS_BUILD_DIR")
 
 PACKAGE = "morpheus_framework"
+REPO = "morpheus-framework"
 
 Version = namedtuple("Version", ["major", "minor", "micro"])
 
@@ -85,19 +86,19 @@ def deploy_pypi():
 def github_tag_and_push(ver: Version):
 
     print("Pushing version file to github")
-    os.system('git config --global user.email "build@travis-ci.com"')
-    os.system('git config --global user.name "Travis CI"')
+    os.system('git config --global user.email "ryanhausen@gmail.com"')
+    os.system('git config --global user.name "Morpheus TravisBot"')
     os.system(
         f'git commit -a -m "[skip travis] TRAVIS:Setting version to {ver.major}.{ver.minor}.{ver.micro}"'
     )
     os.system(
-        f"git push https://{GIT_TRAVIS_UNAME}:{TRAVIS_PWD}@github.com/morpheus-project/{PACKAGE}.git HEAD:master"
+        f"git push https://{GIT_TRAVIS_UNAME}:{TRAVIS_PWD}@github.com/morpheus-project/{REPO}.git HEAD:master"
     )
 
     print("Pushing tag to github")
     os.system(f"git tag v{ver.major}.{ver.minor}.{ver.micro}")
     os.system(
-        f"git push --tags https://{GIT_TRAVIS_UNAME}:{TRAVIS_PWD}@github.com/morpheus-project/{PACKAGE}.git "
+        f"git push --tags https://{GIT_TRAVIS_UNAME}:{TRAVIS_PWD}@github.com/morpheus-project/{REPO}.git "
     )
 
 
