@@ -250,7 +250,7 @@ Citation
 
 If you use this package in your research please cite the original paper:
 
-.. code-block::
+.. code-block:: bash
 
     @ARTICLE{2020ApJS..248...20H,
         author = {{Hausen}, Ryan and {Robertson}, Brant E.},

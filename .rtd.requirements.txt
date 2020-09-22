@@ -2,3 +2,4 @@ dill
 numpy
 astropy
 tqdm
+pytest
