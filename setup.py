@@ -36,7 +36,7 @@ AUTHOR = "Ryan Hausen & Brant Robertson"
 REQUIRES_PYTHON = ">=3.6"
 
 # What packages are required for this module to be executed?
-REQUIRED = ["numpy", "astropy", "tqdm"]
+REQUIRED = ["dill", "numpy", "astropy", "tqdm"]
 
 # The rest you shouldn't have to touch too much :)
 # ------------------------------------------------
