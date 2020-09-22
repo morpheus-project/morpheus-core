@@ -148,7 +148,7 @@ NVIDIA GPUs are supported.
     )
 
 The above example will split ``model_inputs`` along the first dimenion three
-ways equally, into three subdirectories within ``out_dir`, called "0", "1", "2".
+ways equally, into three subdirectories within ``out_dir``, called "0", "1", "2".
 After each subprocesses has finished classifying the image,
 ``morpheus_framework`` stiches each of the outputs in the subdirectories into
 a single large output in ``out_dir`` and removes the subdirectories.
