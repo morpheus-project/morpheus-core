@@ -29,6 +29,7 @@ from itertools import repeat
 from subprocess import Popen
 from typing import Callable, Dict, Iterable, List, Tuple, Union
 
+import dill
 import numpy as np
 from astropy.io import fits
 from tqdm import tqdm
@@ -131,7 +132,7 @@ def make_runnable_file(
         "import sys",
         f"sys.path.append('{local}')",
         "import os",
-        "import pickle",
+        "import dill",
         "import numpy as np",
         "from tqdm import tqdm",
         "from morpheus_framework import morpheus_framework",
@@ -141,26 +142,26 @@ def make_runnable_file(
         "        os.mkdir('./output')",
         "",
         "    with open('model.pkl', 'rb') as f:",
-        "        model = pickle.load(f)",
+        "        model = dill.load(f)",
         "",
         "    model_inputs = [",
         "        " + ",".join(["'" + i + "'" for i in input_fnames]),
         "    ]",
         "",
-        "    update_map = np.load('update_map.npy')",
+        "    update_map = np.load('update_map.npy', allow_pickle=True)",
         "",
         "    morpheus_framework.predict(",
         "        model,",
         "        model_inputs,",
-        f"        {n_classes},",
-        f"        {batch_size},",
-        f"        {window_size},",
-        f"        stride={stride},",
+        f"       {n_classes},",
+        f"       {batch_size},",
+        f"       {window_size},",
+        f"       stride={stride},",
         "        update_map=update_map,",
-        f"        aggregate_method={aggregate_method},",
+        f"       aggregate_method='{aggregate_method}',",
         "        out_dir=output_dir,",
         "    )",
-        "" "    sys.exit(0)",
+        "    sys.exit(0)",
         "if __name__=='__main__':",
         "    main()",
     ]
@@ -222,9 +223,13 @@ def build_parallel_classification_structure(
 
         # put model into subdir
         with open(os.path.join(sub_output_dir, "model.pkl"), "wb") as f:
-            pickle.dump(model, f)
+            dill.dump(model, f)
 
         # put udpate_map into subdir
+
+        if update_map is None:
+            update_map = np.ones(window_shape)
+
         np.save(os.path.join(sub_output_dir, "update_map.npy"), update_map)
 
         make_runnable_file(

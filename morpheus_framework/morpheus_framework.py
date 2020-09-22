@@ -353,7 +353,7 @@ def predict(
             update_map,
             aggregate_method,
             out_dir,
-            workers
+            workers,
         )
 
         parallel_helper.run_parallel_jobs(

@@ -2,12 +2,42 @@
 Morpheus-Framework
 ==================
 
+.. image:: https://travis-ci.com/morpheus-project/morpheus-framework.svg?branch=master
+    :target: https://travis-ci.com/morpheus-project/morpheus-framework
+
+.. image:: https://codecov.io/gh/morpheus-project/morpheus-framework/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/morpheus-project/morpheus-framework
+
+.. image:: https://readthedocs.org/projects/morpheus-astro-framework/badge/?version=latest
+    :target: https://morpheus-astro-framework.readthedocs.io
+
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
 
 .. image:: https://img.shields.io/badge/python-3.6-blue.svg
     :target: https://www.python.org/downloads/release/python-360/
 
+
+``morpheus_framework`` is python package that scales up per-pixel machine
+learning methods to large astronomical images. ``morpheus_framework`` does this
+by using a 'sliding window' technique. Extracting a moving window of a large
+image feeding to your model, and aggregating the outputs from your model back
+into an output image that is the same size as the input image(s). An example
+of this aggregation can be seen below, as applied in the original
+`Morpheus <https://morpheus-project.github.io/morpheus/>`_ paper:
+
+
+.. image:: https://cdn.kapwing.com/final_5f6a37ed73175c00da824918_144995.gif
+    :target: https://www.youtube.com/watch?v=hEL1h_dODkU
+
+
+``morpheus_framework`` offers two methods for aggregating outputs on pixels:
+calculating a running mean and variance, and a 'rank vote' method. The mean
+and variance outputs are recorded for each output class. The 'rank vote' method
+records which of the output classes has the highest value and keeps a 'running
+tally' of how many times an output class has the highest value and normnalizes
+the counts to sum one when ``morpheus_framework`` is finished classifying the
+image.
 
 
 Installation
@@ -16,6 +46,7 @@ Installation
 Requirements:
 
 - ``astropy``
+- ``dill``
 - ``numpy``
 - ``tqdm``
 
@@ -84,8 +115,8 @@ each piece in parallel, and then combining the resulting classifications into a
 single classified image. You can parallelize over GPUS or CPUS, both methods
 require that the ``out_dir`` be provided so that ``morpheus_framework`` knows
 where to save the subsets of the images and their classifications. Further your
-model gets saved into each subdirectory via ``pickle`` and so ``model`` must be
-a pickleable function.
+model gets saved into each subdirectory via ``dill`` and so ``model`` must be
+a ``dill``-pickleable function.
 
 GPUs
 ****
@@ -155,6 +186,63 @@ ways equally, into three subdirectories within ``out_dir`, called "0", "1", "2".
 After each subprocesses has finished classifying the image,
 ``morpheus_framework`` stiches each of the outputs in the subdirectories into
 a single large output in ``out_dir`` and removes the subdirectories.
+
+Non-pickleable functions
+************************
+
+**For Parallelization Capabilities Only**
+
+If you function is non-pickleable then you can write a wrapper class that
+builds and invokes your model. An example can be seen below:
+
+.. code-block:: python
+
+    import tensorflow as tf
+
+    class ModelWrapper:
+
+        def __init__(self, model_path):
+            self.model_path = model_path
+            self.model = None
+
+        def __call__(self, value):
+
+            import tensorflow as tf
+            if self.model is None:
+                self.model = tf.keras.models.load_model(
+                    self.model_path,
+                    custom_objects={"tf":tf},
+                )
+
+            return tf.nn.softmax(self.model(value)).numpy()
+
+You then pass the ``ModelWrapper`` class as the the model arugment to the
+``morpheus_framework``, like below:
+
+.. code-block:: python
+
+    from morpheus_framework import morpheus_framework
+
+    apply_model = ModelWrapper("/path/to/model/file")
+
+    inputs = ["input.fits"]
+
+    n_classes = 5
+    batch_size = 5
+    window_shape = (40,40)
+
+    morpheus_framework.predict(
+        apply_model,
+        inputs,
+        n_classes,
+        batch_size,
+        window_shape,
+        stride = (1, 1),
+        aggregate_method=morpheus_framework.AGGREGATION_METHODS.RANK_VOTE,
+        out_dir=".",
+        cpus=2
+    )
+
 
 
 Citation

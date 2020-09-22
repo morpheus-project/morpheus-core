@@ -316,9 +316,6 @@ def update_single_class_mean_var(
     prev_var = mean_var[:, :, 1].copy()
 
     next_mean = iterative_mean(n, prev_mean, x_n, update_mask)
-    print("===================================================================")
-    print(prev_mean[0, 0], next_mean[0, 0])
-    print("===================================================================")
     next_var = iterative_variance(prev_var, x_n, prev_mean, next_mean, update_mask)
 
     return next_mean, next_var
@@ -351,7 +348,6 @@ def update_mean_var(
     Returns:
         None
     """
-
     y, x = output_idx
     window_y, window_x = update_mask.shape
     ys = slice(y, y + window_y)

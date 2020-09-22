@@ -1,0 +1,20 @@
+
+language: python
+branches:
+  only:
+    - master
+python:
+  - "3.6"
+install:
+  - pip install tensorflow
+  - pip install .
+  - pip install pytest
+  - pip install pytest-cov
+  - pip install pytest-rerunfailures
+  - pip install codecov
+  - pip install twine
+script:
+  - pytest --cov=morpheus_framework
+after_success:
+  - codecov
+  - python travis_deploy.py
