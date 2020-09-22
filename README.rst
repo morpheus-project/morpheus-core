@@ -8,8 +8,8 @@ Morpheus-Framework
 .. image:: https://codecov.io/gh/morpheus-project/morpheus-framework/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/morpheus-project/morpheus-framework
 
-.. image:: https://readthedocs.org/projects/morpheus-astro-framework/badge/?version=latest
-    :target: https://morpheus-astro-framework.readthedocs.io
+.. image:: https://readthedocs.org/projects/morpheus-framework/badge/?version=latest
+    :target: https://morpheus-framework.readthedocs.io
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
@@ -190,7 +190,7 @@ a single large output in ``out_dir`` and removes the subdirectories.
 Non-pickleable functions
 ************************
 
-**For Parallelization Capabilities Only**
+*For Parallelization Capabilities Only*
 
 If you function is non-pickleable then you can write a wrapper class that
 builds and invokes your model. An example can be seen below:
