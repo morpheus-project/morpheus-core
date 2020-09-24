@@ -1,7 +1,7 @@
-morpheus_framework
+morpheus_core
 ==================
 
 .. toctree::
    :maxdepth: 4
 
-   morpheus_framework
+   morpheus_core

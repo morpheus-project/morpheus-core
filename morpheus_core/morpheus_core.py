@@ -29,16 +29,16 @@ import numpy as np
 from astropy.io import fits
 from tqdm import tqdm
 
-from morpheus_framework.helpers import misc_helper
-from morpheus_framework.helpers import fits_helper
-from morpheus_framework.helpers import label_helper
-from morpheus_framework.helpers import parallel_helper
+from morpheus_core.helpers import misc_helper
+from morpheus_core.helpers import fits_helper
+from morpheus_core.helpers import label_helper
+from morpheus_core.helpers import parallel_helper
 
 __all__ = ["AGGREGATION_METHODS", "predict"]
 
 
 class AGGREGATION_METHODS:
-    """Helper class with string constants to use as arguments in morpheus_framework methods."""
+    """Helper class with string constants to use as arguments in morpheus_core methods."""
 
     MEAN_VAR = "mean_var"
     RANK_VOTE = "rank_vote"

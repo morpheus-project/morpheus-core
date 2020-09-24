@@ -19,17 +19,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 # ==============================================================================
-"""Tests for morpheus_framework.helpers.misc_helper"""
+"""Tests for morpheus_core.helpers.misc_helper"""
 
 import numpy as np
 import pytest
 
-import morpheus_framework.helpers.misc_helper as mh
+import morpheus_core.helpers.misc_helper as mh
 
 
 @pytest.mark.unit
 def test_vaidate_input_types_is_str_passes_str():
-    """Test morpheus_framework.helpers.misc_helpers.validate_input_types_is_str"""
+    """Test morpheus_core.helpers.misc_helpers.validate_input_types_is_str"""
 
     valid_inputs = ["test"]
 
@@ -38,7 +38,7 @@ def test_vaidate_input_types_is_str_passes_str():
 
 @pytest.mark.unit
 def test_vaidate_input_types_is_str_passes_np():
-    """Test morpheus_framework.helpers.misc_helpers.validate_input_types_is_str"""
+    """Test morpheus_core.helpers.misc_helpers.validate_input_types_is_str"""
 
     valid_inputs = [np.ones([2, 2])]
 
@@ -47,7 +47,7 @@ def test_vaidate_input_types_is_str_passes_np():
 
 @pytest.mark.unit
 def test_vaidate_input_types_is_str_raises_val_for_two_types():
-    """Test morpheus_framework.helpers.misc_helpers.validate_input_types_is_str fails"""
+    """Test morpheus_core.helpers.misc_helpers.validate_input_types_is_str fails"""
 
     invalid_inputs = [np.ones([2, 2]), "test"]
 
@@ -57,7 +57,7 @@ def test_vaidate_input_types_is_str_raises_val_for_two_types():
 
 @pytest.mark.unit
 def test_vaidate_input_types_is_str_raises_val_for_wrong_type():
-    """Test morpheus_framework.helpers.misc_helpers.validate_input_types_is_str fails"""
+    """Test morpheus_core.helpers.misc_helpers.validate_input_types_is_str fails"""
 
     invalid_inputs = [1]
 
@@ -67,7 +67,7 @@ def test_vaidate_input_types_is_str_raises_val_for_wrong_type():
 
 @pytest.mark.unit
 def test_validate_parallel_params_fails_for_both_given():
-    """Test morpheus_framework.helper.misc_helper.validate_parallel_params"""
+    """Test morpheus_core.helper.misc_helper.validate_parallel_params"""
 
     gpus = [0, 1]
     cpus = [3]
@@ -79,7 +79,7 @@ def test_validate_parallel_params_fails_for_both_given():
 
 @pytest.mark.unit
 def test_validate_parallel_params_passes_both_none():
-    """Test morpheus_framework.helper.misc_helper.validate_parallel_params"""
+    """Test morpheus_core.helper.misc_helper.validate_parallel_params"""
 
     gpus = None
     cpus = None
@@ -96,7 +96,7 @@ def test_validate_parallel_params_passes_both_none():
 
 @pytest.mark.unit
 def test_validate_parallel_params_fails_single_gpu():
-    """Test morpheus_framework.helper.misc_helper.validate_parallel_params"""
+    """Test morpheus_core.helper.misc_helper.validate_parallel_params"""
 
     gpus = [0]
     cpus = None
@@ -108,7 +108,7 @@ def test_validate_parallel_params_fails_single_gpu():
 
 @pytest.mark.unit
 def test_validate_parallel_params_fails_no_out_dir():
-    """Test morpheus_framework.helper.misc_helper.validate_parallel_params"""
+    """Test morpheus_core.helper.misc_helper.validate_parallel_params"""
 
     gpus = [0, 1]
     cpus = None
@@ -120,7 +120,7 @@ def test_validate_parallel_params_fails_no_out_dir():
 
 @pytest.mark.unit
 def test_validate_parallel_params_passes_multi_gpu():
-    """Test morpheus_framework.helper.misc_helper.validate_parallel_params"""
+    """Test morpheus_core.helper.misc_helper.validate_parallel_params"""
 
     gpus = [0, 1]
     cpus = None
@@ -137,7 +137,7 @@ def test_validate_parallel_params_passes_multi_gpu():
 
 @pytest.mark.unit
 def test_validate_parallel_params_fails_cpus_lt_2():
-    """Test morpheus_framework.helper.misc_helper.validate_parallel_params"""
+    """Test morpheus_core.helper.misc_helper.validate_parallel_params"""
 
     gpus = None
     cpus = 1
@@ -149,7 +149,7 @@ def test_validate_parallel_params_fails_cpus_lt_2():
 
 @pytest.mark.unit
 def test_validate_parallel_params_passes_multi_cpu():
-    """Test morpheus_framework.helper.misc_helper.validate_parallel_params"""
+    """Test morpheus_core.helper.misc_helper.validate_parallel_params"""
 
     gpus = None
     cpus = 3
@@ -166,7 +166,7 @@ def test_validate_parallel_params_passes_multi_cpu():
 
 @pytest.mark.unit
 def test_arrays_not_same_size_false():
-    """Test morpheus_framework.helper.misc_helper.arrays_not_same_size"""
+    """Test morpheus_core.helper.misc_helper.arrays_not_same_size"""
     arrays = [np.ones([2, 2]), np.ones([2, 2])]
 
     assert not mh.arrays_not_same_size(arrays)
@@ -174,7 +174,7 @@ def test_arrays_not_same_size_false():
 
 @pytest.mark.unit
 def test_arrays_not_same_size_true():
-    """Test morpheus_framework.helper.misc_helper.arrays_not_same_size"""
+    """Test morpheus_core.helper.misc_helper.arrays_not_same_size"""
     arrays = [np.ones([2, 2]), np.ones([2, 3])]
 
     assert mh.arrays_not_same_size(arrays)
@@ -185,7 +185,7 @@ from functools import partial
 
 @pytest.mark.unit
 def test_apply_tuple_args():
-    """Test morpheus_framework.helper.misc_helper.apply"""
+    """Test morpheus_core.helper.misc_helper.apply"""
 
     f = lambda a, b, c: None
     vals = iter([(1, 2, 3), (4, 5, 6)])
@@ -198,7 +198,7 @@ from functools import partial
 
 @pytest.mark.unit
 def test_apply_single_arg():
-    """Test morpheus_framework.helper.misc_helper.apply"""
+    """Test morpheus_core.helper.misc_helper.apply"""
 
     f = lambda a: None
     vals = iter([1, 2])

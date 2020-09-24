@@ -1,6 +1,7 @@
 
-Morpheus-Framework
-==================
+.. image:: ./morpheus-core.png
+
+
 
 .. image:: https://travis-ci.com/morpheus-project/morpheus-framework.svg?branch=master
     :target: https://travis-ci.com/morpheus-project/morpheus-framework
@@ -17,26 +18,35 @@ Morpheus-Framework
 .. image:: https://img.shields.io/badge/python-3.6-blue.svg
     :target: https://www.python.org/downloads/release/python-360/
 
+``morpheus_core`` is python package that scales up per-pixel machine
+learning methods to large astronomical images. It is designed to take an already
+trained per-pixel machine learning/deep learning model and scale it up to large
+astronomical images. ``morpheus_core`` handles the following tasks:
 
-``morpheus_framework`` is python package that scales up per-pixel machine
-learning methods to large astronomical images. ``morpheus_framework`` does this
-by using a 'sliding window' technique. Extracting a moving window of a large
-image feeding to your model, and aggregating the outputs from your model back
-into an output image that is the same size as the input image(s). An example
-of this aggregation can be seen below, as applied in the original
-`Morpheus <https://morpheus-project.github.io/morpheus/>`_ paper:
+- Opening large FITS files
+- Extracting the batches of image subsamples
+- Feeding the batches to the provided model
+- Aggregates output classifications into large output FITS image
+- Parallelize classification using CPUs or NVIDIA GPUs
+
+
+``morpheus_core`` does this by using a 'sliding window' technique. Extracting a
+moving window of a large image feeding to your model, and aggregating the
+outputs from your model back into an output image that is the same size as the
+input image(s).An example of this aggregation can be seen below, as applied in
+the original `Morpheus <https://morpheus-project.github.io/morpheus/>`_ paper:
 
 
 .. image:: https://cdn.kapwing.com/final_5f6a37ed73175c00da824918_144995.gif
     :target: https://www.youtube.com/watch?v=hEL1h_dODkU
 
 
-``morpheus_framework`` offers two methods for aggregating outputs on pixels:
+``morpheus_core`` offers two methods for aggregating outputs on pixels:
 calculating a running mean and variance, and a 'rank vote' method. The mean
 and variance outputs are recorded for each output class. The 'rank vote' method
 records which of the output classes has the highest value and keeps a 'running
 tally' of how many times an output class has the highest value and normnalizes
-the counts to sum one when ``morpheus_framework`` is finished classifying the
+the counts to sum one when ``morpheus_core`` is finished classifying the
 image.
 
 
@@ -53,7 +63,7 @@ Requirements:
 
 .. code-block:: bash
 
-    pip install morpheus-astro-framework
+    pip install morpheus-core
 
 
 Usuage
@@ -62,21 +72,21 @@ Usuage
 Setup
 -----
 
-To use ``morpheus_framework`` to apply your model to astronomical images you
-need to provide ``morpheus_framework`` with your model in the form of a
+To use ``morpheus_core`` to apply your model to astronomical images you
+need to provide ``morpheus_core`` with your model in the form of a
 ``Callable`` function and the inputs arrays in the form of a list of ``numpy``
 arrays or a list of strings that are the file locations of the ``fits`` files
 that are inputs.
 
 .. code-block:: python
 
-    from morpheus_framework import morpheus_framework
+    from morpheus_core import morpheus_core
 
     n_classes = 5             # number of classes that are output from the model
     batch_size = 16           # number of samples to extract per batch
     window_shape = (100, 100) # (height, width) of each sample
 
-    output_hduls, output_arrays = morpheus_framework.predict(
+    output_hduls, output_arrays = morpheus_core.predict(
         model,        # your model in a callable from
         model_inputs, # list of numpy arrays or strings that point to fits files
         n_classes,
@@ -87,14 +97,14 @@ that are inputs.
 ``output_hduls`` is a list of ``astropy.io.fits.HDUList`` objects that
 correspond to the ``output_arrays`` if ``model_inputs`` are strings. If
 ``model_inputs`` are ``numpy`` arrays then this is an empty list.
-``output_arrays`` is a list containing the ``morpheus_framework`` aggregated
+``output_arrays`` is a list containing the ``morpheus_core`` aggregated
 classifications and the ``n`` array indicating how many times each pixel in the
 image was classified by the ``model``.
 
 Output Format
 -------------
 
-``morpheus_framework`` can aggregate multiple outputs for single pixels in one
+``morpheus_core`` can aggregate multiple outputs for single pixels in one
 of two ways. The first is by recording the mean and the variance for predictions
 for each class in each pixel. This is stored by adding an extra dimenion in the
 output array. For example, if the input array has a shape of ``[1000, 1000, 1]``
@@ -109,11 +119,11 @@ would be ``[1000, 1000, 3]``.
 Parallelization
 ---------------
 
-``morpheus_framework`` supports the parallel classification of large images by
+``morpheus_core`` supports the parallel classification of large images by
 splitting the input along the first dimension (height typically), classifying
 each piece in parallel, and then combining the resulting classifications into a
 single classified image. You can parallelize over GPUS or CPUS, both methods
-require that the ``out_dir`` be provided so that ``morpheus_framework`` knows
+require that the ``out_dir`` be provided so that ``morpheus_core`` knows
 where to save the subsets of the images and their classifications. Further your
 model gets saved into each subdirectory via ``dill`` and so ``model`` must be
 a ``dill``-pickleable function.
@@ -129,7 +139,7 @@ NVIDIA GPUs are supported.
 
 .. code-block:: python
 
-    from morpheus_framework import morpheus_framework
+    from morpheus_core import morpheus_core
 
     n_classes = 5             # number of classes that are output from the model
     batch_size = 16           # number of samples to extract per batch
@@ -137,7 +147,7 @@ NVIDIA GPUs are supported.
     gpus = [0, 1, 2]          # GPUs to use
     out_dir="."
 
-    output_hduls, output_arrays = morpheus_framework.predict(
+    output_hduls, output_arrays = morpheus_core.predict(
         model,        # your model in a callable from
         model_inputs, # list of numpy arrays or strings that point to fits files
         n_classes,
@@ -150,7 +160,7 @@ NVIDIA GPUs are supported.
 The above example will split ``model_inputs`` along the first dimenion three
 ways equally, into three subdirectories within ``out_dir``, called "0", "1", "2".
 After each subprocesses has finished classifying the image,
-``morpheus_framework`` stiches each of the outputs in the subdirectories into
+``morpheus_core`` stiches each of the outputs in the subdirectories into
 a single large output in ``out_dir`` and removes the subdirectories.
 
 CPUs
@@ -163,7 +173,7 @@ input.
 
 .. code-block:: python
 
-    from morpheus_framework import morpheus_framework
+    from morpheus_core import morpheus_core
 
     n_classes = 5             # number of classes that are output from the model
     batch_size = 16           # number of samples to extract per batch
@@ -171,7 +181,7 @@ input.
     cpus = 3                  # Number of processes to use
     out_dir="."
 
-    output_hduls, output_arrays = morpheus_framework.predict(
+    output_hduls, output_arrays = morpheus_core.predict(
         model,        # your model in a callable from
         model_inputs, # list of numpy arrays or strings that point to fits files
         n_classes,
@@ -182,10 +192,10 @@ input.
     )
 
 The above example will split ``model_inputs`` along the first dimenion three
-ways equally, into three subdirectories within ``out_dir`, called "0", "1", "2".
-After each subprocesses has finished classifying the image,
-``morpheus_framework`` stiches each of the outputs in the subdirectories into
-a single large output in ``out_dir`` and removes the subdirectories.
+ways equally, into three subdirectories within ``out_dir``, called "0", "1",
+"2". After each subprocesses has finished classifying the image,
+``morpheus_core`` stiches each of the outputs in the subdirectories into a
+single large output in ``out_dir`` and removes the subdirectories.
 
 Non-pickleable functions
 ************************
@@ -217,11 +227,11 @@ builds and invokes your model. An example can be seen below:
             return tf.nn.softmax(self.model(value)).numpy()
 
 You then pass the ``ModelWrapper`` class as the the model arugment to the
-``morpheus_framework``, like below:
+``morpheus_core``, like below:
 
 .. code-block:: python
 
-    from morpheus_framework import morpheus_framework
+    from morpheus_core import morpheus_core
 
     apply_model = ModelWrapper("/path/to/model/file")
 
@@ -231,14 +241,14 @@ You then pass the ``ModelWrapper`` class as the the model arugment to the
     batch_size = 5
     window_shape = (40,40)
 
-    morpheus_framework.predict(
+    morpheus_core.predict(
         apply_model,
         inputs,
         n_classes,
         batch_size,
         window_shape,
         stride = (1, 1),
-        aggregate_method=morpheus_framework.AGGREGATION_METHODS.RANK_VOTE,
+        aggregate_method=morpheus_core.AGGREGATION_METHODS.RANK_VOTE,
         out_dir=".",
         cpus=2
     )

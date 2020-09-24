@@ -19,21 +19,21 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 # ==============================================================================
-"""Tests for morpheus_framework.morpheus_framework module."""
+"""Tests for morpheus_core.morpheus_core module."""
 import os
 
 import numpy as np
 import pytest
 from astropy.io import fits
 
-import morpheus_framework.tests.helpers as helpers
-import morpheus_framework.helpers.misc_helper as misc
-from morpheus_framework import morpheus_framework
+import morpheus_core.tests.helpers as helpers
+import morpheus_core.helpers.misc_helper as misc
+from morpheus_core import morpheus_core
 
 
 @pytest.mark.unit
 def test_build_batch():
-    """Tests morpheus_framework.build_batch"""
+    """Tests morpheus_core.build_batch"""
 
     arr = np.arange(int(100 * 100)).reshape([100, 100, 1])
     window_size = (10, 10)
@@ -42,7 +42,7 @@ def test_build_batch():
     expected_sums = [45450, 45550, 45650]
     expected_idxs = [(0, 0), (0, 1), (0, 2)]
 
-    arrs, actual_idxs = morpheus_framework.build_batch([arr], window_size, batch_idxs)
+    arrs, actual_idxs = morpheus_core.build_batch([arr], window_size, batch_idxs)
     actual_sums = [a.sum() for a in arrs[0]]
 
     assert actual_sums == expected_sums
@@ -51,7 +51,7 @@ def test_build_batch():
 
 @pytest.mark.unit
 def test_predict_batch():
-    """Tests morpheus_framework.predict_batch"""
+    """Tests morpheus_core.predict_batch"""
 
     model_f = lambda x: x.sum(axis=1).sum(axis=1)
     batch = np.ones([3, 10, 10])
@@ -59,7 +59,7 @@ def test_predict_batch():
 
     expected_result = np.array([100, 100, 100])
 
-    actual_result, actual_idxs = morpheus_framework.predict_batch(
+    actual_result, actual_idxs = morpheus_core.predict_batch(
         model_f, batch, batch_idxs
     )
 
@@ -69,28 +69,28 @@ def test_predict_batch():
 
 @pytest.mark.unit
 def test_update_output_fails_invalid_choice():
-    """Tests morpheus_framework.update_output"""
+    """Tests morpheus_core.update_output"""
 
     invalid_aggregate_method = "invalid"
 
     with pytest.raises(ValueError):
-        morpheus_framework.update_output(
+        morpheus_core.update_output(
             invalid_aggregate_method, None, None, None, None, None, None
         )
 
 
 @pytest.mark.integration
 def test_update_output_mean_var():
-    """Tests morpheus_framework.update_ouput"""
+    """Tests morpheus_core.update_ouput"""
 
-    aggregate_method = morpheus_framework.AGGREGATION_METHODS.MEAN_VAR
+    aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
     update_map = np.ones([10, 10])
     n = np.zeros([100, 100])
     outputs = np.zeros([100, 100, 1, 2])
     batch_out = np.ones([10, 10, 1])
     batch_idxs = (0, 0)
 
-    morpheus_framework.update_output(
+    morpheus_core.update_output(
         aggregate_method, update_map, n, outputs, batch_out, batch_idxs
     )
 
@@ -101,9 +101,9 @@ def test_update_output_mean_var():
 
 @pytest.mark.integration
 def test_update_output_mean_var():
-    """Tests morpheus_framework.update_ouput with mean_var aggregation"""
+    """Tests morpheus_core.update_ouput with mean_var aggregation"""
 
-    aggregate_method = morpheus_framework.AGGREGATION_METHODS.MEAN_VAR
+    aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
     update_map = np.ones([10, 10])
     stride = (1, 1)
     n = np.zeros([100, 100])
@@ -111,7 +111,7 @@ def test_update_output_mean_var():
     batch_out = np.ones([10, 10, 1])
     batch_idxs = (0, 0)
 
-    morpheus_framework.update_output(
+    morpheus_core.update_output(
         aggregate_method, update_map, stride, n, outputs, batch_out, batch_idxs
     )
 
@@ -122,9 +122,9 @@ def test_update_output_mean_var():
 
 @pytest.mark.integration
 def test_update_output_rank_vote():
-    """Tests morpheus_framework.update_output with rank_vote aggregation"""
+    """Tests morpheus_core.update_output with rank_vote aggregation"""
 
-    aggregate_method = morpheus_framework.AGGREGATION_METHODS.RANK_VOTE
+    aggregate_method = morpheus_core.AGGREGATION_METHODS.RANK_VOTE
     update_map = np.ones([10, 10])
     stride = (1, 1)
     n = np.zeros([100, 100])
@@ -132,7 +132,7 @@ def test_update_output_rank_vote():
     batch_out = np.ones([10, 10, 1])
     batch_idxs = (0, 0)
 
-    morpheus_framework.update_output(
+    morpheus_core.update_output(
         aggregate_method, update_map, stride, n, outputs, batch_out, batch_idxs
     )
 
@@ -142,7 +142,7 @@ def test_update_output_rank_vote():
 
 @pytest.mark.integration
 def test_predict_arrays_mean_var():
-    """Tests morpheus_framework.predict_arrays with mean_var aggergation"""
+    """Tests morpheus_core.predict_arrays with mean_var aggergation"""
     total_shape = (100, 100, 1)
 
     model = lambda x: np.ones_like(x[0])
@@ -152,10 +152,10 @@ def test_predict_arrays_mean_var():
     window_size = (10, 10)
     stride = (1, 1)
     update_map = np.ones(window_size)
-    aggregate_method = morpheus_framework.AGGREGATION_METHODS.MEAN_VAR
+    aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
     out_dir = None
 
-    _, outputs = morpheus_framework.predict_arrays(
+    _, outputs = morpheus_core.predict_arrays(
         model,
         model_inputs,
         n_classes,
@@ -175,7 +175,7 @@ def test_predict_arrays_mean_var():
 
 @pytest.mark.integration
 def test_predict_arrays_rank_vote():
-    """Tests morpheus_framework.predict_arrays with rank_vote aggergation"""
+    """Tests morpheus_core.predict_arrays with rank_vote aggergation"""
     total_shape = (100, 100, 1)
 
     model = lambda x: np.ones_like(x[0])
@@ -185,10 +185,10 @@ def test_predict_arrays_rank_vote():
     window_size = (10, 10)
     stride = (1, 1)
     update_map = np.ones(window_size)
-    aggregate_method = morpheus_framework.AGGREGATION_METHODS.RANK_VOTE
+    aggregate_method = morpheus_core.AGGREGATION_METHODS.RANK_VOTE
     out_dir = None
 
-    _, outputs = morpheus_framework.predict_arrays(
+    _, outputs = morpheus_core.predict_arrays(
         model,
         model_inputs,
         n_classes,
@@ -208,7 +208,7 @@ def test_predict_arrays_rank_vote():
 
 @pytest.mark.unit
 def test_predict_arrays_invalid_aggregation_method():
-    """Tests morpheus_framework.predict_arrays with invalid choice"""
+    """Tests morpheus_core.predict_arrays with invalid choice"""
     total_shape = (100, 100, 1)
 
     model = lambda x: np.ones_like(x[0])
@@ -222,7 +222,7 @@ def test_predict_arrays_invalid_aggregation_method():
     out_dir = None
 
     with pytest.raises(ValueError):
-        morpheus_framework.predict_arrays(
+        morpheus_core.predict_arrays(
             model,
             model_inputs,
             n_classes,
@@ -238,7 +238,7 @@ def test_predict_arrays_invalid_aggregation_method():
 @pytest.mark.integration
 @pytest.mark.filterwarnings("ignore::UserWarning")  # Ignore astropy warning
 def test_predict_mean_var_on_disk():
-    """Tests morpheus_framework.predict with mean_var aggergation on disk"""
+    """Tests morpheus_core.predict with mean_var aggergation on disk"""
     helpers.setup()
 
     model = lambda x: np.ones_like(x[0])
@@ -248,13 +248,13 @@ def test_predict_mean_var_on_disk():
     window_size = (10, 10)
     stride = (1, 1)
     update_map = np.ones(window_size)
-    aggregate_method = morpheus_framework.AGGREGATION_METHODS.MEAN_VAR
+    aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
     out_dir = helpers.TMP_DIR
     gpus = None
     cpus = None
     parallel_check_interval = 1
 
-    hduls, outputs = morpheus_framework.predict(
+    hduls, outputs = morpheus_core.predict(
         model,
         model_inputs,
         n_classes,
@@ -287,7 +287,7 @@ def test_predict_mean_var_on_disk():
 @pytest.mark.integration
 @pytest.mark.filterwarnings("ignore::UserWarning")  # Ignore astropy warning
 def test_predict_mean_var_in_mem():
-    """Tests morpheus_framework.predict with mean_var aggergation in mem"""
+    """Tests morpheus_core.predict with mean_var aggergation in mem"""
     total_shape = (100, 100, 1)
 
     model = lambda x: np.ones_like(x[0])
@@ -297,13 +297,13 @@ def test_predict_mean_var_in_mem():
     window_size = (10, 10)
     stride = (1, 1)
     update_map = np.ones(window_size)
-    aggregate_method = morpheus_framework.AGGREGATION_METHODS.MEAN_VAR
+    aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
     out_dir = None
     gpus = None
     cpus = None
     parallel_check_interval = 1
 
-    _, outputs = morpheus_framework.predict(
+    _, outputs = morpheus_core.predict(
         model,
         model_inputs,
         n_classes,

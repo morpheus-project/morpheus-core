@@ -30,15 +30,15 @@ from numpy.lib.stride_tricks import as_strided
 import pytest
 from astropy.io import fits
 
-import morpheus_framework.helpers.parallel_helper as ph
-import morpheus_framework.morpheus_framework as morpheus_framework
-import morpheus_framework.tests.helpers as helper
-from morpheus_framework.tests.helpers import TMP_DIR
+import morpheus_core.helpers.parallel_helper as ph
+import morpheus_core.morpheus_core as morpheus_core
+import morpheus_core.tests.helpers as helper
+from morpheus_core.tests.helpers import TMP_DIR
 
 
 @pytest.mark.unit
 def test_get_split_length():
-    """Tests morpheus_framework.helpers.parallel_helper.get_split_length"""
+    """Tests morpheus_core.helpers.parallel_helper.get_split_length"""
 
     shape = (1200, 1200)
     num_workers = 4
@@ -52,7 +52,7 @@ def test_get_split_length():
 
 @pytest.mark.unit
 def test_get_split_slice_generator():
-    """Tests morpheus_framework.helpers.parallel_helper.get_spit_slice_generator"""
+    """Tests morpheus_core.helpers.parallel_helper.get_spit_slice_generator"""
 
     shape = (1200, 1200)
     window_shape = (40, 40)
@@ -75,7 +75,7 @@ def test_get_split_slice_generator():
 
 @pytest.mark.unit
 def test_make_runnable_file():
-    """Tests morpheus_framework.helpers.parallel_helper.make_runnable_file"""
+    """Tests morpheus_core.helpers.parallel_helper.make_runnable_file"""
 
     helper.setup()
 
@@ -85,7 +85,7 @@ def test_make_runnable_file():
     batch_size = 10
     window_size = (10, 10)
     stride = (1, 1)
-    aggregate_method = morpheus_framework.AGGREGATION_METHODS.MEAN_VAR
+    aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
 
     local = os.path.dirname(os.path.dirname(__file__))
     expected_text = [
@@ -95,7 +95,7 @@ def test_make_runnable_file():
         "import dill",
         "import numpy as np",
         "from tqdm import tqdm",
-        "from morpheus_framework import morpheus_framework",
+        "from morpheus_core import morpheus_core",
         "def main():",
         "    output_dir = './output'",
         "    if 'output' not in os.listdir():",
@@ -110,7 +110,7 @@ def test_make_runnable_file():
         "",
         "    update_map = np.load('update_map.npy', allow_pickle=True)",
         "",
-        "    morpheus_framework.predict(",
+        "    morpheus_core.predict(",
         "        model,",
         "        model_inputs,",
         f"       {n_classes},",
@@ -151,7 +151,7 @@ def pickle_rick(x):
 
 @pytest.mark.integration
 def test_build_parallel_classification_structure():
-    """Tests morpheus_framework.helpers.parallel_helper.build_parallel_classification_structure"""
+    """Tests morpheus_core.helpers.parallel_helper.build_parallel_classification_structure"""
     helper.setup()
 
     model = pickle_rick
@@ -162,7 +162,7 @@ def test_build_parallel_classification_structure():
     window_size = (10, 10)
     stride = (1, 1)
     update_map = np.ones(window_size)
-    aggregate_method = morpheus_framework.AGGREGATION_METHODS.MEAN_VAR
+    aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
     out_dir = helper.TMP_DIR
     workers = [0, 1]
 
@@ -192,7 +192,7 @@ def test_build_parallel_classification_structure():
 
 @pytest.mark.unit
 def test_worker_to_cmd_gpu():
-    """Tests morpheus_framework.helpers.parallel_helper.worker_to_cmd for a gpu worker"""
+    """Tests morpheus_core.helpers.parallel_helper.worker_to_cmd for a gpu worker"""
     is_gpu = True
     worker = 1
 
@@ -205,7 +205,7 @@ def test_worker_to_cmd_gpu():
 
 @pytest.mark.unit
 def test_worker_to_cmd_cpu():
-    """Tests morpheus_framework.helpers.parallel_helper.worker_to_cmd for a cpu worker"""
+    """Tests morpheus_core.helpers.parallel_helper.worker_to_cmd for a cpu worker"""
     is_gpu = False
     worker = 1
 
@@ -218,7 +218,7 @@ def test_worker_to_cmd_cpu():
 
 @pytest.mark.unit
 def test_check_procs():
-    """Tests morpheus_framework.helpers.parallel_helper.check_procs"""
+    """Tests morpheus_core.helpers.parallel_helper.check_procs"""
 
     class MockProcess(object):
         def __init__(self, poll_value):
@@ -237,7 +237,7 @@ def test_check_procs():
 
 @pytest.mark.integration
 def test_monitor_procs():
-    """Tests morpheus_framework.helpers.parallel_helper.monitor_procs"""
+    """Tests morpheus_core.helpers.parallel_helper.monitor_procs"""
 
     class MockProcess(object):
         def __init__(self, counter_to_complete):
@@ -270,7 +270,7 @@ def test_monitor_procs():
 @pytest.mark.flaky(reruns=5)
 @pytest.mark.integration
 def test_run_parallel_jobs():
-    """Tests morpheus_framework.helpers.parallel_helper.run_parallel_jobs"""
+    """Tests morpheus_core.helpers.parallel_helper.run_parallel_jobs"""
 
     helper.setup()
 
@@ -310,25 +310,25 @@ def test_run_parallel_jobs():
 
 @pytest.mark.unit
 def test_get_merge_function_mean_var():
-    """Tests morpheus_framework.helpers.parallel_helper.get_merge_function"""
-    method = morpheus_framework.AGGREGATION_METHODS.MEAN_VAR
+    """Tests morpheus_core.helpers.parallel_helper.get_merge_function"""
+    method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
     assert ph.get_merge_function(method) == ph.merge_parallel_mean_var
 
 
 @pytest.mark.unit
 def test_get_merge_function_rank_vote():
-    """Tests morpheus_framework.helpers.parallel_helper.get_merge_function"""
-    method = morpheus_framework.AGGREGATION_METHODS.RANK_VOTE
+    """Tests morpheus_core.helpers.parallel_helper.get_merge_function"""
+    method = morpheus_core.AGGREGATION_METHODS.RANK_VOTE
     assert ph.get_merge_function(method) == ph.merge_parallel_rank_vote
 
 
 @pytest.mark.unit
 @pytest.mark.filterwarnings("ignore::UserWarning")  # Ignore astropy warning
 def test_get_empty_output_array_rank_vote():
-    """Tests morpheus_framework.helpers.parallel_helper.get_empty_output_array for mean_var"""
+    """Tests morpheus_core.helpers.parallel_helper.get_empty_output_array for mean_var"""
     helper.setup()
     out_dir = helper.TMP_DIR
-    method = morpheus_framework.AGGREGATION_METHODS.RANK_VOTE
+    method = morpheus_core.AGGREGATION_METHODS.RANK_VOTE
 
     in_shape = (100, 100, 5)
     expected_output_shape = (100, 100, 5)
@@ -350,10 +350,10 @@ def test_get_empty_output_array_rank_vote():
 @pytest.mark.unit
 @pytest.mark.filterwarnings("ignore::UserWarning")  # Ignore astropy warning
 def test_get_empty_output_array_mean_var():
-    """Tests morpheus_framework.helpers.parallel_helper.get_empty_output_array for mean_var"""
+    """Tests morpheus_core.helpers.parallel_helper.get_empty_output_array for mean_var"""
     helper.setup()
     out_dir = helper.TMP_DIR
-    method = morpheus_framework.AGGREGATION_METHODS.MEAN_VAR
+    method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
 
     in_shape = (100, 100, 5)
     expected_output_shape = (100, 100, 5, 2)
@@ -374,7 +374,7 @@ def test_get_empty_output_array_mean_var():
 
 @pytest.mark.unit
 def test_get_start_y_idxs():
-    """Tests morpheus_framework.helpers.parallel_helper.get_start_y_idxs"""
+    """Tests morpheus_core.helpers.parallel_helper.get_start_y_idxs"""
     n_heights = [100, 100, 100]
     window_height = 10
 
@@ -387,7 +387,7 @@ def test_get_start_y_idxs():
 
 @pytest.mark.unit
 def test_get_data_from_worker():
-    """Tests morpheus_framework.helpers.parallel_helper.get_data_from_worker"""
+    """Tests morpheus_core.helpers.parallel_helper.get_data_from_worker"""
     helper.setup()
 
     out_dir = helper.TMP_DIR
@@ -414,7 +414,7 @@ def test_get_data_from_worker():
 
 @pytest.mark.unit
 def test_merge_parallel_mean_var():
-    """Tests morpheus_framework.helpers.parallel_helper.merge_parallel_mean_var"""
+    """Tests morpheus_core.helpers.parallel_helper.merge_parallel_mean_var"""
 
     test_shape = [10, 10, 1, 2]
     combined_out = np.zeros(test_shape)
@@ -446,7 +446,7 @@ def test_merge_parallel_mean_var():
 
 @pytest.mark.unit
 def test_mege_parallel_rank_vote():
-    """tests morpheus_framework.helpers.parallel_helper.merge_parallel_rank_vote"""
+    """tests morpheus_core.helpers.parallel_helper.merge_parallel_rank_vote"""
 
     test_shape = [10, 10, 2]
     combined_out = np.zeros(test_shape)
@@ -481,14 +481,14 @@ def test_mege_parallel_rank_vote():
 @pytest.mark.integration
 @pytest.mark.filterwarnings("ignore::UserWarning")  # Ignore astropy warning
 def test_stitch_parallel_classifications():
-    """tests morpheus_framework.helpers.parallel_helper.stitch_parallel_classifications"""
+    """tests morpheus_core.helpers.parallel_helper.stitch_parallel_classifications"""
 
     helper.setup()
     out_dir = helper.TMP_DIR
     test_shape = [10, 10, 1, 2]
     window_shape = [5, 5]
     workers = [0, 1]
-    aggregation_method = morpheus_framework.AGGREGATION_METHODS.MEAN_VAR
+    aggregation_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
 
     for w in workers:
         os.mkdir(os.path.join(out_dir, str(w)))

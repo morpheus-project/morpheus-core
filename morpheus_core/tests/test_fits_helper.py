@@ -25,13 +25,13 @@ import numpy as np
 import pytest
 from astropy.io import fits
 
-import morpheus_framework.helpers.fits_helper as fh
-import morpheus_framework.tests.helpers as helper
+import morpheus_core.helpers.fits_helper as fh
+import morpheus_core.tests.helpers as helper
 
 
 @pytest.mark.unit
 def test_open_file():
-    """Tests morpheus_framework.helpers.fits_helper.open_file"""
+    """Tests morpheus_core.helpers.fits_helper.open_file"""
     helper.setup()
     sample_location = helper.make_sample_file()
 
@@ -46,7 +46,7 @@ def test_open_file():
 
 @pytest.mark.unit
 def test_open_files():
-    """Tests morpheus_framework.helpers.fits_helper.open_file"""
+    """Tests morpheus_core.helpers.fits_helper.open_file"""
     helper.setup()
     sample_location = helper.make_sample_file()
     sample2_location = helper.make_sample_file2()
@@ -63,7 +63,7 @@ def test_open_files():
 
 @pytest.mark.unit
 def test_dtype_to_bytes_per_value():
-    """Tests morpheus_framework.helpers.fits_helper.dtype_to_bytes_per_value"""
+    """Tests morpheus_core.helpers.fits_helper.dtype_to_bytes_per_value"""
     types = [np.uint8, np.int16, np.int32, np.float32, np.float64]
     expected_bytes_per_value = [1, 2, 4, 4, 8]
 
@@ -74,7 +74,7 @@ def test_dtype_to_bytes_per_value():
 
 @pytest.mark.unit
 def test_dtype_to_bytes_per_value_fails():
-    """Tests morpheus_framework.helpers.fits_helper.dtype_to_bytes_per_value"""
+    """Tests morpheus_core.helpers.fits_helper.dtype_to_bytes_per_value"""
     with pytest.raises(ValueError):
         fh.dtype_to_bytes_per_value(np.bool)
 
@@ -82,7 +82,7 @@ def test_dtype_to_bytes_per_value_fails():
 @pytest.mark.unit
 @pytest.mark.filterwarnings("ignore::UserWarning")  # Ignore astropy warning
 def test_create_file():
-    """Tests morpheus_framework.helpers.fits_helper.create_file"""
+    """Tests morpheus_core.helpers.fits_helper.create_file"""
     helper.setup()
 
     shape = (100, 100)

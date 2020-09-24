@@ -26,7 +26,7 @@ from typing import Iterable, List, Tuple, Union
 import numpy as np
 from astropy.io import fits
 
-from morpheus_framework.helpers import fits_helper
+from morpheus_core.helpers import fits_helper
 
 
 def get_mean_var_array(

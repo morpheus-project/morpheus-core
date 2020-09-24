@@ -34,9 +34,9 @@ import numpy as np
 from astropy.io import fits
 from tqdm import tqdm
 
-import morpheus_framework.helpers.misc_helper as mh
-import morpheus_framework.helpers.fits_helper as fh
-from morpheus_framework import morpheus_framework
+import morpheus_core.helpers.misc_helper as mh
+import morpheus_core.helpers.fits_helper as fh
+from morpheus_core import morpheus_core
 
 
 def get_split_length(
@@ -125,7 +125,7 @@ def make_runnable_file(
         None
     """
 
-    # we need `local` so that we can import morpheus_framework just in case the pip env
+    # we need `local` so that we can import morpheus_core just in case the pip env
     # doesn't carry over to the new process
     local = os.path.dirname(os.path.dirname(__file__))
     text = [
@@ -135,7 +135,7 @@ def make_runnable_file(
         "import dill",
         "import numpy as np",
         "from tqdm import tqdm",
-        "from morpheus_framework import morpheus_framework",
+        "from morpheus_core import morpheus_core",
         "def main():",
         "    output_dir = './output'",
         "    if 'output' not in os.listdir():",
@@ -150,7 +150,7 @@ def make_runnable_file(
         "",
         "    update_map = np.load('update_map.npy', allow_pickle=True)",
         "",
-        "    morpheus_framework.predict(",
+        "    morpheus_core.predict(",
         "        model,",
         "        model_inputs,",
         f"       {n_classes},",
@@ -417,15 +417,15 @@ def get_merge_function(aggreation_method: str) -> Callable:
 
     Args:
         aggregation_method (str): The aggregation method used one of
-                                  morpheus_framework.AGGREGATION_METHODS.MEAN_VAR or
-                                  morpheus_framework.AGGREGATION_METHODS.RANK_VOTE
+                                  morpheus_core.AGGREGATION_METHODS.MEAN_VAR or
+                                  morpheus_core.AGGREGATION_METHODS.RANK_VOTE
 
     Returns:
         A function the use for merging output arrays
 
     """
 
-    if aggreation_method == morpheus_framework.AGGREGATION_METHODS.MEAN_VAR:
+    if aggreation_method == morpheus_core.AGGREGATION_METHODS.MEAN_VAR:
         return merge_parallel_mean_var
     else:
         return merge_parallel_rank_vote
@@ -459,8 +459,8 @@ def get_empty_output_array(
         width (int): The output image width
         n_classes (int): The number classes the model predicts
         aggregation_method (str): The method to use for merging outputs one of
-                                  morpheus_framework.AGGREGATION_METHODS.MEAN_VAR or
-                                  morpheus_framework.AGGREGATION_METHODS.RANK_VOTE
+                                  morpheus_core.AGGREGATION_METHODS.MEAN_VAR or
+                                  morpheus_core.AGGREGATION_METHODS.RANK_VOTE
 
     Returns:
         A 4-Tuple where the first element is the HDUL for output array, the
@@ -468,7 +468,7 @@ def get_empty_output_array(
         output array, the fourth element is the n array.
 
     """
-    if aggregation_method == morpheus_framework.AGGREGATION_METHODS.MEAN_VAR:
+    if aggregation_method == morpheus_core.AGGREGATION_METHODS.MEAN_VAR:
         shape = [height, width, n_classes, 2]
     else:
         shape = [height, width, n_classes]
@@ -509,7 +509,7 @@ def stitch_parallel_classifications(
         workers (List[int]): List of integer ids associated with workers
         out_dir (str): The output directory that the worker classifications are
                        stored in.
-        aggregation (str): The morpheus_framework.AGGREGATION_METHODS value to use to merge
+        aggregation (str): The morpheus_core.AGGREGATION_METHODS value to use to merge
                            the output arrays
         window_shape (Tuple[int, int]): The (width, height) of the input output
                                         image data.

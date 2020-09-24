@@ -7,7 +7,7 @@ Submodules
 morpheus\_framework.tests.helpers module
 ----------------------------------------
 
-.. automodule:: morpheus_framework.tests.helpers
+.. automodule:: morpheus_core.tests.helpers
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ morpheus\_framework.tests.helpers module
 morpheus\_framework.tests.test\_fits\_helper module
 ---------------------------------------------------
 
-.. automodule:: morpheus_framework.tests.test_fits_helper
+.. automodule:: morpheus_core.tests.test_fits_helper
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ morpheus\_framework.tests.test\_fits\_helper module
 morpheus\_framework.tests.test\_label\_helper module
 ----------------------------------------------------
 
-.. automodule:: morpheus_framework.tests.test_label_helper
+.. automodule:: morpheus_core.tests.test_label_helper
    :members:
    :undoc-members:
    :show-inheritance:
@@ -31,7 +31,7 @@ morpheus\_framework.tests.test\_label\_helper module
 morpheus\_framework.tests.test\_misc\_helper module
 ---------------------------------------------------
 
-.. automodule:: morpheus_framework.tests.test_misc_helper
+.. automodule:: morpheus_core.tests.test_misc_helper
    :members:
    :undoc-members:
    :show-inheritance:
@@ -39,7 +39,7 @@ morpheus\_framework.tests.test\_misc\_helper module
 morpheus\_framework.tests.test\_morpheus\_framework module
 ----------------------------------------------------------
 
-.. automodule:: morpheus_framework.tests.test_morpheus_framework
+.. automodule:: morpheus_core.tests.test_morpheus_core
    :members:
    :undoc-members:
    :show-inheritance:
@@ -47,7 +47,7 @@ morpheus\_framework.tests.test\_morpheus\_framework module
 morpheus\_framework.tests.test\_parallel\_helper module
 -------------------------------------------------------
 
-.. automodule:: morpheus_framework.tests.test_parallel_helper
+.. automodule:: morpheus_core.tests.test_parallel_helper
    :members:
    :undoc-members:
    :show-inheritance:
@@ -55,7 +55,7 @@ morpheus\_framework.tests.test\_parallel\_helper module
 Module contents
 ---------------
 
-.. automodule:: morpheus_framework.tests
+.. automodule:: morpheus_core.tests
    :members:
    :undoc-members:
    :show-inheritance:

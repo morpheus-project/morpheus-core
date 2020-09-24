@@ -21,7 +21,7 @@
 # ==============================================================================
 from functools import partial
 from itertools import count
-from morpheus_framework.helpers import misc_helper
+from morpheus_core.helpers import misc_helper
 from typing import List, Tuple
 
 import numpy as np

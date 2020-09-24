@@ -27,14 +27,14 @@ import numpy as np
 import pytest
 from astropy.io import fits
 
-import morpheus_framework.helpers.label_helper as lh
-from morpheus_framework.helpers.label_helper import finalize_rank_vote
-import morpheus_framework.tests.helpers as helper
+import morpheus_core.helpers.label_helper as lh
+from morpheus_core.helpers.label_helper import finalize_rank_vote
+import morpheus_core.tests.helpers as helper
 
 
 @pytest.mark.unit
 def test_get_mean_var_array_in_mem():
-    """tests morpheus_framework.helpers.label_helper.get_mean_var_array"""
+    """tests morpheus_core.helpers.label_helper.get_mean_var_array"""
 
     shape = [100, 100, 1]
 
@@ -47,7 +47,7 @@ def test_get_mean_var_array_in_mem():
 @pytest.mark.unit
 @pytest.mark.filterwarnings("ignore::UserWarning")  # Ignore astropy warning
 def test_get_mean_var_array_on_disk():
-    """tests morpheus_framework.helpers.label_helper.get_mean_var_array"""
+    """tests morpheus_core.helpers.label_helper.get_mean_var_array"""
 
     helper.setup()
 
@@ -67,7 +67,7 @@ def test_get_mean_var_array_on_disk():
 
 @pytest.mark.unit
 def test_get_rank_vote_array_in_mem():
-    """tests morpheus_framework.helpers.label_helper.get_mean_var_array"""
+    """tests morpheus_core.helpers.label_helper.get_mean_var_array"""
 
     shape = [100, 100, 1]
 
@@ -80,7 +80,7 @@ def test_get_rank_vote_array_in_mem():
 @pytest.mark.unit
 @pytest.mark.filterwarnings("ignore::UserWarning")  # Ignore astropy warning
 def test_get_rank_vote_array_on_disk():
-    """tests morpheus_framework.helpers.label_helper.get_mean_var_array"""
+    """tests morpheus_core.helpers.label_helper.get_mean_var_array"""
 
     helper.setup()
 
@@ -100,7 +100,7 @@ def test_get_rank_vote_array_on_disk():
 
 @pytest.mark.unit
 def test_get_n_array_in_mem():
-    """tests morpheus_framework.helpers.label_helper.get_mean_var_array"""
+    """tests morpheus_core.helpers.label_helper.get_mean_var_array"""
 
     shape = [100, 100]
 
@@ -113,7 +113,7 @@ def test_get_n_array_in_mem():
 @pytest.mark.unit
 @pytest.mark.filterwarnings("ignore::UserWarning")  # Ignore astropy warning
 def test_get_n_array_on_disk():
-    """tests morpheus_framework.helpers.label_helper.get_mean_var_array"""
+    """tests morpheus_core.helpers.label_helper.get_mean_var_array"""
 
     helper.setup()
 
@@ -133,7 +133,7 @@ def test_get_n_array_on_disk():
 
 @pytest.mark.unit
 def test_get_windowed_index_generator_fails():
-    """test morpheus_framework.helpers.label_helper.get_windowed_index_generator"""
+    """test morpheus_core.helpers.label_helper.get_windowed_index_generator"""
     total_wh = (100, 100)
     window_shape = (10, 10)
     stride = (1,)
@@ -144,7 +144,7 @@ def test_get_windowed_index_generator_fails():
 
 @pytest.mark.unit
 def test_get_windowed_index_generator_stride_one():
-    """test morpheus_framework.helpers.label_helper.get_windowed_index_generator"""
+    """test morpheus_core.helpers.label_helper.get_windowed_index_generator"""
     total_wh = (100, 100)
     window_shape = (10, 10)
     stride = (1, 1)
@@ -159,7 +159,7 @@ def test_get_windowed_index_generator_stride_one():
 
 @pytest.mark.unit
 def test_get_windowed_index_generator_stride_one():
-    """test morpheus_framework.helpers.label_helper.get_windowed_index_generator"""
+    """test morpheus_core.helpers.label_helper.get_windowed_index_generator"""
     total_wh = (100, 100)
     window_shape = (10, 10)
     stride = (2, 2)
@@ -265,7 +265,7 @@ def test_update_n():
 
 @pytest.mark.unit
 def test_iterative_mean():
-    """Tests morpheus_framework.helpers.label_helper.iterative_mean."""
+    """Tests morpheus_core.helpers.label_helper.iterative_mean."""
 
     shape = (10, 10)
     n = np.ones(shape) * 2
@@ -279,7 +279,7 @@ def test_iterative_mean():
 
 @pytest.mark.unit
 def test_iterative_variance():
-    """Tests morpheus_framework.helpers.label_helper.iterative_variance"""
+    """Tests morpheus_core.helpers.label_helper.iterative_variance"""
     shape = (10, 10)
     terms = [np.ones(shape) * i for i in range(9)]
     s_n = np.zeros(shape)
@@ -304,7 +304,7 @@ def test_iterative_variance():
 
 @pytest.mark.unit
 def test_finalize_variance():
-    """Tests morpheus_framework.helpers.label_helper.finalize_variance"""
+    """Tests morpheus_core.helpers.label_helper.finalize_variance"""
 
     shape = (10, 10)
     terms = [np.ones(shape) * i for i in range(9)]
@@ -325,7 +325,7 @@ def test_finalize_variance():
 
 @pytest.mark.unit
 def test_update_single_class_mean_var():
-    """Tests morpheus_framework.helpers.label_helper.update_single_class_mean_var"""
+    """Tests morpheus_core.helpers.label_helper.update_single_class_mean_var"""
     shape = (10, 10)
     terms = np.dstack([np.ones(shape) * i for i in range(9)])
     update_mask = np.ones((shape))
@@ -349,7 +349,7 @@ def test_update_single_class_mean_var():
 
 @pytest.mark.unit
 def test_update_mean_var():
-    """Tests morpheus_framework.helpers.label_helper.update_mean_var"""
+    """Tests morpheus_core.helpers.label_helper.update_mean_var"""
 
     window_shape = (10, 10)
     total_shape = (100, 100)
@@ -369,7 +369,7 @@ def test_update_mean_var():
 
 @pytest.mark.unit
 def test_finalize_rank_vote():
-    """Tests morpheus_framework.helpers.label_helper.finalize_rank_vote"""
+    """Tests morpheus_core.helpers.label_helper.finalize_rank_vote"""
     window_size = (10, 10)
 
     n = np.ones(window_size)
@@ -383,7 +383,7 @@ def test_finalize_rank_vote():
 
 @pytest.mark.unit
 def test_update_rank_vote():
-    """Tests morpheus_framework.helpers.label_helper.update_rank_vote"""
+    """Tests morpheus_core.helpers.label_helper.update_rank_vote"""
 
     window_shape = (10, 10)
     total_shape = (100, 100)

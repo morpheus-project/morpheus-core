@@ -7,7 +7,7 @@ Submodules
 morpheus\_framework.helpers.fits\_helper module
 -----------------------------------------------
 
-.. automodule:: morpheus_framework.helpers.fits_helper
+.. automodule:: morpheus_core.helpers.fits_helper
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ morpheus\_framework.helpers.fits\_helper module
 morpheus\_framework.helpers.label\_helper module
 ------------------------------------------------
 
-.. automodule:: morpheus_framework.helpers.label_helper
+.. automodule:: morpheus_core.helpers.label_helper
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ morpheus\_framework.helpers.label\_helper module
 morpheus\_framework.helpers.misc\_helper module
 -----------------------------------------------
 
-.. automodule:: morpheus_framework.helpers.misc_helper
+.. automodule:: morpheus_core.helpers.misc_helper
    :members:
    :undoc-members:
    :show-inheritance:
@@ -31,7 +31,7 @@ morpheus\_framework.helpers.misc\_helper module
 morpheus\_framework.helpers.parallel\_helper module
 ---------------------------------------------------
 
-.. automodule:: morpheus_framework.helpers.parallel_helper
+.. automodule:: morpheus_core.helpers.parallel_helper
    :members:
    :undoc-members:
    :show-inheritance:
@@ -39,7 +39,7 @@ morpheus\_framework.helpers.parallel\_helper module
 Module contents
 ---------------
 
-.. automodule:: morpheus_framework.helpers
+.. automodule:: morpheus_core.helpers
    :members:
    :undoc-members:
    :show-inheritance:

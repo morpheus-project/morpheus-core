@@ -1,2 +1,2 @@
 [report]
-omit = morpheus_framework/tests/*
+omit = morpheus_core/tests/*

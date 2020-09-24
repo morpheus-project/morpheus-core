@@ -26,8 +26,8 @@ You can leak secrets to the travis log.
 
 This performs the following steps:
 
-1. Get the current version of the package from morpheus_framework.__version__.py
-2. Increment the microversion by 1 and save to morpheus_framework.__version__.py
+1. Get the current version of the package from morpheus_core.__version__.py
+2. Increment the microversion by 1 and save to morpheus_core.__version__.py
 3. Run setup.py sdist bdist_wheel
 4. Push to pypi with twine
 5. Git tag build with version and push
@@ -42,8 +42,8 @@ TRAVIS_PWD = os.environ["TRAVIS_PWD"]
 
 LOCAL = os.environ.get("TRAVIS_BUILD_DIR")
 
-PACKAGE = "morpheus_framework"
-REPO = "morpheus-framework"
+PACKAGE = "morpheus_core"
+REPO = "morpheus-core"
 
 Version = namedtuple("Version", ["major", "minor", "micro"])
 

@@ -53,7 +53,7 @@ try:
 except FileNotFoundError:
     long_description = DESCRIPTION
 
-with open("./morpheus_framework/__version__.py", "r") as f:
+with open("./morpheus_core/__version__.py", "r") as f:
     version = f.readlines()[0].strip().replace('"', "")
 
 # Where the magic happens:
@@ -67,7 +67,7 @@ setup(
     author_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    packages=find_packages(exclude=("morpheus_framework.tests",)),
+    packages=find_packages(exclude=("morpheus_core.tests",)),
     install_requires=REQUIRED,
     license="MIT",
     classifiers=[

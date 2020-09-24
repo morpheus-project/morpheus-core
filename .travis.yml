@@ -13,7 +13,7 @@ install:
   - pip install codecov
   - pip install twine
 script:
-  - pytest --cov=morpheus_framework
+  - pytest --cov=morpheus_core
 after_success:
   - codecov
   - python travis_deploy.py

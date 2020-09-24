@@ -7,8 +7,8 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   morpheus_framework.helpers
-   morpheus_framework.tests
+   morpheus_core.helpers
+   morpheus_core.tests
 
 Submodules
 ----------
@@ -16,7 +16,7 @@ Submodules
 morpheus\_framework.morpheus\_framework module
 ----------------------------------------------
 
-.. automodule:: morpheus_framework.morpheus_framework
+.. automodule:: morpheus_core.morpheus_core
    :members:
    :undoc-members:
    :show-inheritance:
@@ -24,7 +24,7 @@ morpheus\_framework.morpheus\_framework module
 Module contents
 ---------------
 
-.. automodule:: morpheus_framework
+.. automodule:: morpheus_core
    :members:
    :undoc-members:
    :show-inheritance:
