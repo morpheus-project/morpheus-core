@@ -28,9 +28,9 @@ import os
 from setuptools import find_packages, setup
 
 # Package meta-data.
-NAME = "morpheus-astro-framework"
+NAME = "morpheus-core"
 DESCRIPTION = "A framework for scaling pixel-level analysis to large images"
-URL = "https://github.com/morpheus-project/morpheus-framework"
+URL = "https://github.com/morpheus-project/morpheus-core"
 EMAIL = "rhausen@ucsc.edu"
 AUTHOR = "Ryan Hausen & Brant Robertson"
 REQUIRES_PYTHON = ">=3.6"
