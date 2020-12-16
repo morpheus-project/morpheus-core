@@ -60,17 +60,19 @@ def test_get_split_slice_generator():
     split_length = 330
 
     expected_slices = [
-        slice(0, 329),
-        slice(288, 617),
-        slice(576, 905),
-        slice(864, 1200),
+        slice(0, 330),
+        slice(291, 621),
+        slice(582, 912),
+        slice(873, 1200),
     ]
 
-    actual_slices = ph.get_split_slice_generator(
+    actual_slices = list(ph.get_split_slice_generator(
         shape, window_shape, num_workers, split_length
-    )
+    ))
 
-    assert expected_slices == list(actual_slices)
+    print(actual_slices)
+
+    assert expected_slices == actual_slices
 
 
 @pytest.mark.unit

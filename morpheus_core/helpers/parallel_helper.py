@@ -22,10 +22,11 @@
 
 from functools import partial
 import os
+from os.path import split
 import pickle
 import shutil
 import time
-from itertools import repeat
+from itertools import repeat, starmap
 from subprocess import Popen
 from typing import Callable, Dict, Iterable, List, Tuple, Union
 
@@ -79,18 +80,28 @@ def get_split_slice_generator(
     TODO: Refactor to a more functional implementation
     """
 
-    idx = 0
-    for i in range(num_workers):
-        start_idx = max(idx - window_shape[0] - 1, 0)
+    start_ys =  get_start_y_idxs(
+        list(repeat(split_length, num_workers-1)),
+        window_height=window_shape[0]
+    )
 
-        if i == num_workers - 1:
-            end_idx = shape[0]
-        else:
-            end_idx = start_idx + split_length - 1
+    end_ys = start_ys + split_length
+    end_ys[-1] = shape[0]
 
-        idx = end_idx
+    return starmap(slice, zip(start_ys, end_ys))
 
-        yield slice(start_idx, end_idx)
+    # idx = 0
+    # for i in range(num_workers):
+    #     start_idx = max(idx - window_shape[0] - 1, 0)
+
+    #     if i == num_workers - 1:
+    #         end_idx = shape[0]
+    #     else:
+    #         end_idx = start_idx + split_length - 1
+
+    #     idx = end_idx
+
+    #     yield slice(start_idx, end_idx)
 
 
 def make_runnable_file(

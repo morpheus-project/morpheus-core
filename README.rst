@@ -37,7 +37,7 @@ input image(s).An example of this aggregation can be seen below, as applied in
 the original `Morpheus <https://morpheus-project.github.io/morpheus/>`_ paper:
 
 
-.. image:: https://cdn.kapwing.com/final_5f6a37ed73175c00da824918_144995.gif
+.. image:: ./morpheus.gif
     :target: https://www.youtube.com/watch?v=hEL1h_dODkU
 
 
