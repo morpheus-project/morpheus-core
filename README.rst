@@ -3,11 +3,11 @@
 
 
 
-.. image:: https://travis-ci.com/morpheus-project/morpheus-framework.svg?branch=master
-    :target: https://travis-ci.com/morpheus-project/morpheus-framework
+.. image:: https://travis-ci.com/morpheus-project/morpheus-core.svg?branch=master
+    :target: https://travis-ci.com/morpheus-project/morpheus-core
 
-.. image:: https://codecov.io/gh/morpheus-project/morpheus-framework/branch/master/graph/badge.svg
-    :target: https://codecov.io/gh/morpheus-project/morpheus-framework
+.. image:: https://codecov.io/gh/morpheus-project/morpheus-core/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/morpheus-project/morpheus-core
 
 .. image:: https://readthedocs.org/projects/morpheus-framework/badge/?version=latest
     :target: https://morpheus-framework.readthedocs.io

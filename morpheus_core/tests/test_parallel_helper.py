@@ -66,9 +66,9 @@ def test_get_split_slice_generator():
         slice(873, 1200),
     ]
 
-    actual_slices = list(ph.get_split_slice_generator(
-        shape, window_shape, num_workers, split_length
-    ))
+    actual_slices = list(
+        ph.get_split_slice_generator(shape, window_shape, num_workers, split_length)
+    )
 
     print(actual_slices)
 

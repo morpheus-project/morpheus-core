@@ -59,9 +59,7 @@ def test_predict_batch():
 
     expected_result = np.array([100, 100, 100])
 
-    actual_result, actual_idxs = morpheus_core.predict_batch(
-        model_f, batch, batch_idxs
-    )
+    actual_result, actual_idxs = morpheus_core.predict_batch(model_f, batch, batch_idxs)
 
     np.testing.assert_array_equal(expected_result, actual_result)
     assert batch_idxs == actual_idxs

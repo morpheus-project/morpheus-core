@@ -80,9 +80,8 @@ def get_split_slice_generator(
     TODO: Refactor to a more functional implementation
     """
 
-    start_ys =  get_start_y_idxs(
-        list(repeat(split_length, num_workers-1)),
-        window_height=window_shape[0]
+    start_ys = get_start_y_idxs(
+        list(repeat(split_length, num_workers - 1)), window_height=window_shape[0]
     )
 
     end_ys = start_ys + split_length
