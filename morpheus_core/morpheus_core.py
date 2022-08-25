@@ -181,13 +181,7 @@ def udpate_batch(
     """
 
     update_f = partial(
-        update_output,
-        aggregate_method,
-        update_map,
-        stride,
-        dilation,
-        n,
-        outputs,
+        update_output, aggregate_method, update_map, stride, dilation, n, outputs,
     )
 
     misc_helper.apply(update_f, zip(batch_out, batch_idxs))
@@ -227,7 +221,9 @@ def predict_arrays(
     model_inputs = list(map(np.atleast_3d, model_inputs))
     in_shape = model_inputs[0].shape[:-1]
 
-    valid_dilation_f = lambda x, y: y < 1 if bool(x % float(y)) else not bool(y % float(1))
+    valid_dilation_f = (
+        lambda x, y: y < 1 if bool(x % float(y)) else not bool(y % float(1))
+    )
     if not all(starmap(valid_dilation_f, zip(in_shape, repeat(dilation)))):
         raise ValueError("Invalid dialtion value.")
 
