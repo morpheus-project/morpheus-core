@@ -199,6 +199,45 @@ def test_predict_arrays_mean_var():
 
 
 @pytest.mark.integration
+def test_predict_arrays_mean_var_super_resolution():
+    """Tests morpheus_core.predict_arrays with mean_var aggergation"""
+    total_shape = (100, 100, 1)
+    dilation = 3
+
+    model = lambda x: np.ones(
+        list(map(lambda x: x * dilation, x[0].shape[:-1])) + [x[0].shape[-1]]
+    )
+    model_inputs = [np.ones(total_shape)]
+    n_classes = 1
+    batch_size = 10
+    window_size = (10, 10)
+    stride = (1, 1)
+    update_map = np.ones((30, 30))
+    aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
+    out_dir = None
+
+    _, outputs = morpheus_core.predict_arrays(
+        model,
+        model_inputs,
+        n_classes,
+        batch_size,
+        window_size,
+        dilation,
+        stride,
+        update_map,
+        aggregate_method,
+        out_dir,
+    )
+    out_lbl, out_n = outputs
+
+    assert out_lbl.sum() == 300 * 300
+    assert out_lbl.shape == (300, 300, 1, 2)
+    np.testing.assert_array_equal(
+        out_n[0, :10], np.array([1, 1, 1, 2, 2, 2, 3, 3, 3, 4])
+    )
+
+
+@pytest.mark.integration
 def test_predict_arrays_rank_vote():
     """Tests morpheus_core.predict_arrays with rank_vote aggergation"""
     total_shape = (100, 100, 1)
@@ -358,4 +397,4 @@ def test_predict_mean_var_in_mem():
 
 
 if __name__ == "__main__":
-    test_predict_mean_var_on_disk()
+    test_predict_arrays_mean_var_super_resolution()

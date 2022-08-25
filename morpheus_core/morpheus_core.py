@@ -94,7 +94,6 @@ def predict_batch(
         batch and the second element is the batch indexes associated with the
         output.
     """
-
     return model_f(batch), batch_idxs
 
 
@@ -221,17 +220,15 @@ def predict_arrays(
     model_inputs = list(map(np.atleast_3d, model_inputs))
     in_shape = model_inputs[0].shape[:-1]
 
-    valid_dilation_f = (
-        lambda x, y: y < 1 if bool(x % float(y)) else not bool(y % float(1))
-    )
+    valid_dilation_f = lambda _, y: y > 1 or not bool(y % float(1))
     if not all(starmap(valid_dilation_f, zip(in_shape, repeat(dilation)))):
-        raise ValueError("Invalid dialtion value.")
+        raise ValueError("Invalid dilation value.")
 
     out_shape = [*list(map(lambda x: int(x * dilation), in_shape)), n_classes]
     out_dir_f = lambda s: os.path.join(out_dir, s) if out_dir else None
 
     if update_map is None:
-        update_map = np.ones(window_shape)
+        update_map = np.ones(list(map(lambda x: x * dilation, window_shape)))
 
     if aggregate_method == AGGREGATION_METHODS.MEAN_VAR:
         hdul_lbl, arr_lbl = label_helper.get_mean_var_array(
