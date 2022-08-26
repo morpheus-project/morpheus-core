@@ -73,7 +73,7 @@ def test_update_output_fails_invalid_choice():
 
     with pytest.raises(ValueError):
         morpheus_core.update_output(
-            invalid_aggregate_method, None, None, None, None, None, None
+            invalid_aggregate_method, None, None, 1, None, None, None, (1, 1)
         )
 
 
@@ -83,13 +83,22 @@ def test_update_output_mean_var():
 
     aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
     update_map = np.ones([10, 10])
+    stride = (1, 1)
+    dilation = float(1)
     n = np.zeros([100, 100])
     outputs = np.zeros([100, 100, 1, 2])
     batch_out = np.ones([10, 10, 1])
     batch_idxs = (0, 0)
 
     morpheus_core.update_output(
-        aggregate_method, update_map, n, outputs, batch_out, batch_idxs
+        aggregate_method,
+        update_map,
+        stride,
+        dilation,
+        n,
+        outputs,
+        batch_out,
+        batch_idxs,
     )
 
     assert n[0:10, 0:10].all()
@@ -104,13 +113,21 @@ def test_update_output_mean_var():
     aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
     update_map = np.ones([10, 10])
     stride = (1, 1)
+    dilation = 1
     n = np.zeros([100, 100])
     outputs = np.zeros([100, 100, 1, 2])
     batch_out = np.ones([10, 10, 1])
     batch_idxs = (0, 0)
 
     morpheus_core.update_output(
-        aggregate_method, update_map, stride, n, outputs, batch_out, batch_idxs
+        aggregate_method,
+        update_map,
+        stride,
+        dilation,
+        n,
+        outputs,
+        batch_out,
+        batch_idxs,
     )
 
     assert n[0:10, 0:10].all()
@@ -125,13 +142,21 @@ def test_update_output_rank_vote():
     aggregate_method = morpheus_core.AGGREGATION_METHODS.RANK_VOTE
     update_map = np.ones([10, 10])
     stride = (1, 1)
+    dilation = 1
     n = np.zeros([100, 100])
     outputs = np.zeros([100, 100, 1])
     batch_out = np.ones([10, 10, 1])
     batch_idxs = (0, 0)
 
     morpheus_core.update_output(
-        aggregate_method, update_map, stride, n, outputs, batch_out, batch_idxs
+        aggregate_method,
+        update_map,
+        stride,
+        dilation,
+        n,
+        outputs,
+        batch_out,
+        batch_idxs,
     )
 
     assert n[0:10, 0:10].all()
@@ -149,6 +174,7 @@ def test_predict_arrays_mean_var():
     batch_size = 10
     window_size = (10, 10)
     stride = (1, 1)
+    dilation = 1
     update_map = np.ones(window_size)
     aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
     out_dir = None
@@ -159,6 +185,7 @@ def test_predict_arrays_mean_var():
         n_classes,
         batch_size,
         window_size,
+        dilation,
         stride,
         update_map,
         aggregate_method,
@@ -172,6 +199,45 @@ def test_predict_arrays_mean_var():
 
 
 @pytest.mark.integration
+def test_predict_arrays_mean_var_super_resolution():
+    """Tests morpheus_core.predict_arrays with mean_var aggergation"""
+    total_shape = (100, 100, 1)
+    dilation = 3
+
+    model = lambda x: np.ones(
+        list(map(lambda x: x * dilation, x[0].shape[:-1])) + [x[0].shape[-1]]
+    )
+    model_inputs = [np.ones(total_shape)]
+    n_classes = 1
+    batch_size = 10
+    window_size = (10, 10)
+    stride = (1, 1)
+    update_map = np.ones((30, 30))
+    aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
+    out_dir = None
+
+    _, outputs = morpheus_core.predict_arrays(
+        model,
+        model_inputs,
+        n_classes,
+        batch_size,
+        window_size,
+        dilation,
+        stride,
+        update_map,
+        aggregate_method,
+        out_dir,
+    )
+    out_lbl, out_n = outputs
+
+    assert out_lbl.sum() == 300 * 300
+    assert out_lbl.shape == (300, 300, 1, 2)
+    np.testing.assert_array_equal(
+        out_n[0, :10], np.array([1, 1, 1, 2, 2, 2, 3, 3, 3, 4])
+    )
+
+
+@pytest.mark.integration
 def test_predict_arrays_rank_vote():
     """Tests morpheus_core.predict_arrays with rank_vote aggergation"""
     total_shape = (100, 100, 1)
@@ -181,6 +247,7 @@ def test_predict_arrays_rank_vote():
     n_classes = 1
     batch_size = 10
     window_size = (10, 10)
+    dilation = 1
     stride = (1, 1)
     update_map = np.ones(window_size)
     aggregate_method = morpheus_core.AGGREGATION_METHODS.RANK_VOTE
@@ -192,6 +259,7 @@ def test_predict_arrays_rank_vote():
         n_classes,
         batch_size,
         window_size,
+        dilation,
         stride,
         update_map,
         aggregate_method,
@@ -214,6 +282,7 @@ def test_predict_arrays_invalid_aggregation_method():
     n_classes = 1
     batch_size = 10
     window_size = (10, 10)
+    dilation = 1
     stride = (1, 1)
     update_map = np.ones(window_size)
     aggregate_method = "invalid"
@@ -226,6 +295,7 @@ def test_predict_arrays_invalid_aggregation_method():
             n_classes,
             batch_size,
             window_size,
+            dilation,
             stride,
             update_map,
             aggregate_method,
@@ -244,6 +314,7 @@ def test_predict_mean_var_on_disk():
     n_classes = 1
     batch_size = 10
     window_size = (10, 10)
+    dilation = 1
     stride = (1, 1)
     update_map = np.ones(window_size)
     aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
@@ -258,6 +329,7 @@ def test_predict_mean_var_on_disk():
         n_classes,
         batch_size,
         window_size,
+        dilation,
         stride,
         update_map,
         aggregate_method,
@@ -293,6 +365,7 @@ def test_predict_mean_var_in_mem():
     n_classes = 1
     batch_size = 10
     window_size = (10, 10)
+    dilation = 1
     stride = (1, 1)
     update_map = np.ones(window_size)
     aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
@@ -307,6 +380,7 @@ def test_predict_mean_var_in_mem():
         n_classes,
         batch_size,
         window_size,
+        dilation,
         stride,
         update_map,
         aggregate_method,
@@ -323,4 +397,4 @@ def test_predict_mean_var_in_mem():
 
 
 if __name__ == "__main__":
-    test_predict_mean_var_on_disk()
+    test_predict_arrays_mean_var_super_resolution()

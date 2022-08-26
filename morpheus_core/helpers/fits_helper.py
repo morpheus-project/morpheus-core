@@ -19,6 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 # ==============================================================================
+
 from functools import partial
 from itertools import count
 from morpheus_core.helpers import misc_helper
@@ -32,6 +33,7 @@ def open_file(
     file_name: str, mode: str = "readonly"
 ) -> Tuple[fits.HDUList, np.ndarray]:
     """Gets the HDULS and data handles for all the files in file_names.
+
        This is a convience function to opening a singls FITS file using memmap.
 
         Args:
@@ -48,8 +50,10 @@ def open_files(
     file_names: List[str], mode: str = "readonly"
 ) -> Tuple[List[fits.HDUList], List[np.ndarray]]:
     """Gets the HDULS and data handles for all the files in file_names.
+
        This is a convience function to opening multiple FITS files using
        memmap.
+
         Args:
             file_names (List[str]): a list of file names including paths to FITS
                                     files
@@ -97,9 +101,11 @@ def dtype_to_bytes_per_value(dtype: np.dtype) -> int:
 
 def create_file(file_name: str, shape: Tuple[int], dtype: np.dtype) -> None:
     """Creates a fits file without loading it into memory.
+
     This is a helper method to create large FITS files without loading an
     array into memory. The method follows the direction given at:
     http://docs.astropy.org/en/stable/generated/examples/io/skip_create-large-fits.html
+
     Args:
         file_name (str): the complete path to the file to be created.
         data_shape (tuple): a tuple describe the shape of the file to be

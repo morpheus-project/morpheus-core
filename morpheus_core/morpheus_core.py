@@ -94,7 +94,6 @@ def predict_batch(
         batch and the second element is the batch indexes associated with the
         output.
     """
-
     return model_f(batch), batch_idxs
 
 
@@ -102,6 +101,7 @@ def update_output(
     aggregate_method: str,
     update_map: np.ndarray,
     stride: Tuple[int, int],
+    dilation: float,
     n: np.ndarray,
     outputs: np.ndarray,
     batch_out: np.ndarray,
@@ -133,13 +133,15 @@ def update_output(
         or AGGREGATION_METHODS.RANK_VOTE
     """
 
+    dialted_batch_idx = tuple(map(lambda x: int(dilation * x), batch_idx))
+
     if aggregate_method == AGGREGATION_METHODS.MEAN_VAR:
         label_helper.update_mean_var(
-            update_map, stride, n, outputs, batch_out, batch_idx
+            update_map, stride, n, outputs, batch_out, dialted_batch_idx
         )
     elif aggregate_method == AGGREGATION_METHODS.RANK_VOTE:
         label_helper.update_rank_vote(
-            update_map, stride, n, outputs, batch_out, batch_idx
+            update_map, stride, n, outputs, batch_out, dialted_batch_idx
         )
     else:
         raise ValueError(AGGREGATION_METHODS.INVALID_ERR)
@@ -149,6 +151,7 @@ def udpate_batch(
     aggregate_method: str,
     update_map: np.ndarray,
     stride: Tuple[int, int],
+    dilation: float,
     n: np.ndarray,
     outputs: np.ndarray,
     batch_out: np.ndarray,  # [n, w, h, c]
@@ -176,7 +179,10 @@ def udpate_batch(
         None
     """
 
-    update_f = partial(update_output, aggregate_method, update_map, stride, n, outputs)
+    update_f = partial(
+        update_output, aggregate_method, update_map, stride, dilation, n, outputs,
+    )
+
     misc_helper.apply(update_f, zip(batch_out, batch_idxs))
 
 
@@ -186,6 +192,7 @@ def predict_arrays(
     n_classes: int,
     batch_size: int,
     window_shape: Tuple[int, int],
+    dilation: float = 1,
     stride: Tuple[int, int] = (1, 1),
     update_map: np.ndarray = None,
     aggregate_method: str = AGGREGATION_METHODS.RANK_VOTE,
@@ -212,11 +219,16 @@ def predict_arrays(
     """
     model_inputs = list(map(np.atleast_3d, model_inputs))
     in_shape = model_inputs[0].shape[:-1]
-    out_shape = [*in_shape, n_classes]
+
+    valid_dilation_f = lambda _, y: y > 1 or not bool(y % float(1))
+    if not all(starmap(valid_dilation_f, zip(in_shape, repeat(dilation)))):
+        raise ValueError("Invalid dilation value.")
+
+    out_shape = [*list(map(lambda x: int(x * dilation), in_shape)), n_classes]
     out_dir_f = lambda s: os.path.join(out_dir, s) if out_dir else None
 
     if update_map is None:
-        update_map = np.ones(window_shape)
+        update_map = np.ones(list(map(lambda x: x * dilation, window_shape)))
 
     if aggregate_method == AGGREGATION_METHODS.MEAN_VAR:
         hdul_lbl, arr_lbl = label_helper.get_mean_var_array(
@@ -229,7 +241,7 @@ def predict_arrays(
     else:
         raise ValueError(AGGREGATION_METHODS.INVALID_ERR)
 
-    hdul_n, arr_n = label_helper.get_n_array(in_shape, out_dir_f("n.fits"))
+    hdul_n, arr_n = label_helper.get_n_array(out_shape[:-1], out_dir_f("n.fits"))
 
     indicies = label_helper.get_windowed_index_generator(in_shape, window_shape, stride)
 
@@ -255,7 +267,13 @@ def predict_arrays(
         pass
     else:
         update_func = partial(
-            udpate_batch, aggregate_method, update_map, stride, arr_n, arr_lbl
+            udpate_batch,
+            aggregate_method,
+            update_map,
+            stride,
+            dilation,
+            arr_n,
+            arr_lbl,
         )
 
         for _ in starmap(update_func, starmap(classify_func, batches_and_idxs)):
@@ -273,6 +291,7 @@ def predict(
     n_classes: int,
     batch_size: int,
     window_shape: Tuple[int, int],
+    dilation: float = 1,
     stride: Tuple[int, int] = (1, 1),
     update_map: np.ndarray = None,
     aggregate_method: str = AGGREGATION_METHODS.RANK_VOTE,
@@ -336,6 +355,7 @@ def predict(
             n_classes,
             batch_size,
             window_shape,
+            dilation,
             stride,
             update_map,
             aggregate_method,
@@ -349,6 +369,7 @@ def predict(
             n_classes,
             batch_size,
             window_shape,
+            dilation,
             stride,
             update_map,
             aggregate_method,
