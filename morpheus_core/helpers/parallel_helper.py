@@ -109,6 +109,7 @@ def make_runnable_file(
     n_classes: int,
     batch_size: int,
     window_size: Union[Tuple[int], List[int]],
+    dilation: int,
     stride: Union[Tuple[int], List[int]],
     aggregate_method: str,
 ) -> None:
@@ -166,6 +167,7 @@ def make_runnable_file(
         f"       {n_classes},",
         f"       {batch_size},",
         f"       {window_size},",
+        f"       {dilation},",
         f"       stride={stride},",
         "        update_map=update_map,",
         f"       aggregate_method='{aggregate_method}',",
@@ -187,6 +189,7 @@ def build_parallel_classification_structure(
     n_classes: int,
     batch_size: int,
     window_shape: Tuple[int],
+    dilation: int,
     stride: Union[Tuple[int], List[int]],
     update_map: np.ndarray,
     aggregate_method: str,
@@ -248,6 +251,7 @@ def build_parallel_classification_structure(
             n_classes,
             batch_size,
             window_shape,
+            dilation,
             stride,
             aggregate_method,
         )

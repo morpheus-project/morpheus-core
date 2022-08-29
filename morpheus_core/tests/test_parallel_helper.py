@@ -85,6 +85,7 @@ def test_make_runnable_file():
     input_file_names = [helper.make_sample_file()]
     n_classes = 2
     batch_size = 10
+    dilation = 1
     window_size = (10, 10)
     stride = (1, 1)
     aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
@@ -118,6 +119,7 @@ def test_make_runnable_file():
         f"       {n_classes},",
         f"       {batch_size},",
         f"       {window_size},",
+        f"       {dilation},",
         f"       stride={stride},",
         "        update_map=update_map,",
         f"       aggregate_method='{aggregate_method}',",
@@ -134,6 +136,7 @@ def test_make_runnable_file():
         n_classes,
         batch_size,
         window_size,
+        dilation,
         stride,
         aggregate_method,
     )
@@ -162,6 +165,7 @@ def test_build_parallel_classification_structure():
     n_classes = 2
     batch_size = 10
     window_size = (10, 10)
+    dilation = 1
     stride = (1, 1)
     update_map = np.ones(window_size)
     aggregate_method = morpheus_core.AGGREGATION_METHODS.MEAN_VAR
@@ -175,6 +179,7 @@ def test_build_parallel_classification_structure():
         n_classes,
         batch_size,
         window_size,
+        dilation,
         stride,
         update_map,
         aggregate_method,

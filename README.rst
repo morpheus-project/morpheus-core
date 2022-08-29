@@ -4,7 +4,7 @@
 
 
 .. image:: https://travis-ci.com/morpheus-project/morpheus-core.svg?branch=master
-    :target: https://travis-ci.com/morpheus-project/morpheus-core
+    :target: https://app.travis-ci.com/morpheus-project/morpheus-core.svg
 
 .. image:: https://codecov.io/gh/morpheus-project/morpheus-core/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/morpheus-project/morpheus-core
