@@ -31,7 +31,7 @@ from morpheus_core.helpers import fits_helper
 
 def get_mean_var_array(
     shape: Union[List[int], Tuple[int]], write_to: str = None
-) -> Tuple[Union[fits.HDUList], np.ndarray]:
+) -> Tuple[Union[fits.HDUList, None], np.ndarray]:
     """Make label arrays for storing the model output.
 
     Args:
@@ -60,7 +60,7 @@ def get_mean_var_array(
 
 def get_rank_vote_array(
     shape: Union[List[int], Tuple[int]], write_to: str = None
-) -> Tuple[Union[fits.HDUList], np.ndarray]:
+) -> Tuple[Union[fits.HDUList, None], np.ndarray]:
     """Make label arrays for storing the model output.
 
     Args:
