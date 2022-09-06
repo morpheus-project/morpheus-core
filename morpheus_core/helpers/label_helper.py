@@ -210,7 +210,7 @@ def update_n(
     xs = slice(x, x + window_x)
 
     n_current = n[ys, xs].copy()
-    n_update = update_mask.astype(np.int)
+    n_update = update_mask.astype(int)
     n_updated = n_current + n_update
     n[ys, xs] = n_updated
 

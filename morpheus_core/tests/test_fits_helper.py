@@ -76,7 +76,7 @@ def test_dtype_to_bytes_per_value():
 def test_dtype_to_bytes_per_value_fails():
     """Tests morpheus_core.helpers.fits_helper.dtype_to_bytes_per_value"""
     with pytest.raises(ValueError):
-        fh.dtype_to_bytes_per_value(np.bool)
+        fh.dtype_to_bytes_per_value(bool)
 
 
 @pytest.mark.unit

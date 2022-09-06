@@ -34,13 +34,13 @@ def open_file(
 ) -> Tuple[fits.HDUList, np.ndarray]:
     """Gets the HDULS and data handles for all the files in file_names.
 
-       This is a convience function to opening a singls FITS file using memmap.
+    This is a convience function to opening a singls FITS file using memmap.
 
-        Args:
-            file_name (str): filename to open
-            mode (str): the mode to pass to fits.open
-        Returns:
-            Tuple containing the HDUL and the corresponding numpy array
+     Args:
+         file_name (str): filename to open
+         mode (str): the mode to pass to fits.open
+     Returns:
+         Tuple containing the HDUL and the corresponding numpy array
     """
     hdul = fits.open(file_name, mode=mode, memmap=True)
     return hdul, hdul[0].data
@@ -51,16 +51,16 @@ def open_files(
 ) -> Tuple[List[fits.HDUList], List[np.ndarray]]:
     """Gets the HDULS and data handles for all the files in file_names.
 
-       This is a convience function to opening multiple FITS files using
-       memmap.
+    This is a convience function to opening multiple FITS files using
+    memmap.
 
-        Args:
-            file_names (List[str]): a list of file names including paths to FITS
-                                    files
-            mode (str): the mode to pass to fits.open
-        Returns:
-            Tuple of a list numpy arrays that are the mmapped data handles for
-            each of the FITS files and the HDULs that go along with them
+     Args:
+         file_names (List[str]): a list of file names including paths to FITS
+                                 files
+         mode (str): the mode to pass to fits.open
+     Returns:
+         Tuple of a list numpy arrays that are the mmapped data handles for
+         each of the FITS files and the HDULs that go along with them
     """
     return zip(*map(partial(open_file, mode=mode), file_names))
 
@@ -68,13 +68,13 @@ def open_files(
 def dtype_to_bytes_per_value(dtype: np.dtype) -> int:
     """Gets the number of bytes as an int for each numpy datatype.
 
-        Args:
-            dtype (np.dtype): the numpy datatype to get the bytes for
-        Returns:
-            The number of bytes, as an int, for the given numpy datatype
-        Raises:
-            ValueError for a value that is not one of: np.uint8, np.int16,
-            np.int32, np.float32, np.float64
+    Args:
+        dtype (np.dtype): the numpy datatype to get the bytes for
+    Returns:
+        The number of bytes, as an int, for the given numpy datatype
+    Raises:
+        ValueError for a value that is not one of: np.uint8, np.int16,
+        np.int32, np.float32, np.float64
     """
 
     if dtype == np.uint8:

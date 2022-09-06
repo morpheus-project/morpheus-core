@@ -133,15 +133,17 @@ def update_output(
         or AGGREGATION_METHODS.RANK_VOTE
     """
 
-    dialted_batch_idx = tuple(map(lambda x: int(dilation * x), batch_idx))
+    dilate_f = lambda tuple_in: tuple(map(lambda val: int(dilation * val), tuple_in))
+    dilated_batch_idx = dilate_f(batch_idx)
+    dilated_stride = dilate_f(stride)
 
     if aggregate_method == AGGREGATION_METHODS.MEAN_VAR:
         label_helper.update_mean_var(
-            update_map, stride, n, outputs, batch_out, dialted_batch_idx
+            update_map, dilated_stride, n, outputs, batch_out, dilated_batch_idx
         )
     elif aggregate_method == AGGREGATION_METHODS.RANK_VOTE:
         label_helper.update_rank_vote(
-            update_map, stride, n, outputs, batch_out, dialted_batch_idx
+            update_map, dilated_stride, n, outputs, batch_out, dilated_batch_idx
         )
     else:
         raise ValueError(AGGREGATION_METHODS.INVALID_ERR)
@@ -180,7 +182,13 @@ def udpate_batch(
     """
 
     update_f = partial(
-        update_output, aggregate_method, update_map, stride, dilation, n, outputs,
+        update_output,
+        aggregate_method,
+        update_map,
+        stride,
+        dilation,
+        n,
+        outputs,
     )
 
     misc_helper.apply(update_f, zip(batch_out, batch_idxs))
