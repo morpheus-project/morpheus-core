@@ -39,6 +39,7 @@ from collections import namedtuple
 GIT_TRAVIS_UNAME = "morpheus-travis"
 PYPI_TRAVIS_UNAME = "morpheus-travis"
 TRAVIS_PWD = os.environ["TRAVIS_PWD"]
+TRAVIS_PYPI_PWD = os.environ["TRAVIS_PYPI_PWD"]
 
 LOCAL = os.environ.get("TRAVIS_BUILD_DIR")
 
@@ -77,7 +78,7 @@ def deploy_pypi():
 
     print("Uploading via twine...")
     os.system(
-        f"twine upload -u {PYPI_TRAVIS_UNAME} -p {TRAVIS_PWD} "
+        f"twine upload -u {PYPI_TRAVIS_UNAME} -p {TRAVIS_PYPI_PWD} "
         + os.path.join(dist_path, "*")
     )
 
