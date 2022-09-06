@@ -73,7 +73,7 @@ def test_update_output_fails_invalid_choice():
 
     with pytest.raises(ValueError):
         morpheus_core.update_output(
-            invalid_aggregate_method, None, None, 1, None, None, None, (1, 1)
+            invalid_aggregate_method, None, (1, 1), 1, None, None, None, (1, 1)
         )
 
 
