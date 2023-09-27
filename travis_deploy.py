@@ -85,7 +85,6 @@ def deploy_pypi():
 
 # https://medium.com/even-financial-engineering/continuous-release-pipeline-with-travis-ci-78fc01febf38
 def github_tag_and_push(ver: Version):
-
     print("Pushing version file to github")
     os.system('git config --global user.email "ryanhausen@gmail.com"')
     os.system('git config --global user.name "Morpheus TravisBot"')

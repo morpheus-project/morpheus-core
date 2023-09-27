@@ -35,8 +35,8 @@ def get_mean_var_array(
     """Make label arrays for storing the model output.
 
     Args:
-        shape (Union[List[int], Tuple[int]]): Gets the array for storing `n`
-                                              values
+        shape (Union[List[int], Tuple[int]]): Gets the array for storing the
+                                              mean and variance values
         write_to (str): If supplied is the place where to write the array.
                         Otherwise the array is created in memory
 
@@ -64,8 +64,8 @@ def get_rank_vote_array(
     """Make label arrays for storing the model output.
 
     Args:
-        shape (Union[List[int], Tuple[int]]): Gets the array for storing `n`
-                                              values
+        shape (Union[List[int], Tuple[int]]): Gets the array for storing the
+                                              vote values
         write_to (str): If supplied is the place where to write the array.
                         Otherwise the array is created in memory
 
@@ -83,6 +83,26 @@ def get_rank_vote_array(
         hdul, array = None, np.zeros(shape, dtype=np.float32)
 
     return hdul, array
+
+
+def get_median_array(
+    shape: Union[List[int], Tuple[int]], write_to: str = None
+) -> Tuple[Union[fits.HDUList, None], np.ndarray]:
+    """Make label arrays for storing the model output.
+
+    Args:
+        shape (Union[List[int], Tuple[int]]): Gets the array for storing the
+                                              median estimate and step values
+        write_to (str): If supplied is the place where to write the array.
+                        Otherwise the array is created in memory
+
+    Returns:
+        A 2-tuple where the first item if `write_to` is supplied, otherwise
+        None and the second item is a numpy array
+    """
+
+    # the median estimate tracks two values so we can reuse the mean/var
+    return get_mean_var_array(shape, write_to)
 
 
 def get_n_array(
@@ -461,3 +481,49 @@ def update_rank_vote(
     )
 
     output[ys, xs, :] = finalized_values
+
+
+def update_median(
+    update_mask: np.ndarray,
+    stride: Tuple[int, int],
+    n: np.ndarray,
+    output: np.ndarray,
+    single_output: np.ndarray,
+    output_idx: Tuple[int, int],
+) -> None:
+    """Updates the median and step values with the recently classified output.
+
+    This calculates a running median using the FAME algorithm from:
+
+    https://ieeexplore.ieee.org/abstract/document/4261339
+
+    Args:
+        update_mask (np.ndarray): a 2d boolean array indicating which
+                                  indices in the array should be updated
+        stride (Tuple[int, int]): How many (rows, columns) to move through the
+                                  image at each iteration.
+        n (np.ndarray): an array containing the total number of times a each
+                        pixel has been classified
+        output (np.ndarray): an array containing the current running
+                             classifications
+        final_map (np.ndarray): an boolean array indicating which pixels are
+                                finished being classified
+        single_output (np.ndarray): The new output values to update the median
+                                    and step with
+        output_idx (Tuple[int, int]): the y, x values that idicate where in the
+                                      image the updates should happen
+
+    Returns:
+        None
+    """
+
+    y, x = output_idx
+    window_y, window_x = update_mask.shape
+    ys = slice(y, y + window_y)
+    xs = slice(x, x + window_x)
+
+    update_n(update_mask, n, output_idx)
+
+    # get the current median and step values
+    # check if we need to initiaize the median and step values
+    # update median and step values
