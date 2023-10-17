@@ -426,6 +426,47 @@ def merge_parallel_rank_vote(
     combined_n[ys, :] = denominator[..., 0]
 
 
+def merge_parallel_median_estimate(
+    combined_out: np.ndarray,
+    combined_n: np.ndarray,
+    output: np.ndarray,
+    n: np.ndarray,
+    start_y: int,
+) -> None:
+    """Merge the output from a worker into the total output for median estimate.
+
+    Note, there is not a great way to do this, a proper median has access to all
+    of the values.
+
+    Args:
+        combined_out (np.ndarray): The total output array
+        combined_n (np.ndarray): The total n array
+        output (np.ndarray): The output to merge into the total output
+        n (np.ndarray): The n to merge into the total n
+        start_y (int): The y index to merge into output into combined_out
+
+    Returns:
+        None, the operation is performed inplace on combined_out and combined_n
+    """
+
+    ys = slice(start_y, start_y + output.shape[0])
+
+    x1, x2 = combined_out[ys, ...].copy(), output.copy()
+    n1, n2 = combined_n[ys, :, np.newaxis].copy(), n[..., np.newaxis].copy()
+    total_n = n1 + n2
+
+    median_1, median_2 = x1[..., 0], x2[..., 0]
+    step_1, step_2 = x1[..., 1], x2[..., 1]
+    coef_1 = np.where(n1 > 0, n1 / total_n, 0)
+    coef_2 = np.where(n2 > 0, n2 / total_n, 0)
+
+    new_median = (median_1 * coef_1) + (median_2 * coef_2)
+    new_step = (step_1 * coef_1) + (step_2 * coef_2)
+
+    combined_out[ys, :, 0] = new_median
+    combined_out[ys, :, 1] = new_step
+    combined_n[ys, :] = total_n[..., 0]
+
 def get_merge_function(aggreation_method: str) -> Callable:
     """Returns the method for merging arrays based on the aggregation method.
 
@@ -441,8 +482,10 @@ def get_merge_function(aggreation_method: str) -> Callable:
 
     if aggreation_method == morpheus_core.AGGREGATION_METHODS.MEAN_VAR:
         return merge_parallel_mean_var
-    else:
+    elif aggreation_method == morpheus_core.AGGREGATION_METHODS.RANK_VOTE:
         return merge_parallel_rank_vote
+    else:
+        return merge_parallel_median_estimate
 
 
 def get_data_from_worker(out_dir: str, worker: int) -> Tuple[np.ndarray, np.ndarray]:
