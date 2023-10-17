@@ -378,7 +378,7 @@ def test_finalize_rank_vote():
         [np.zeros(window_size), np.zeros(window_size), np.ones(window_size)]
     )
 
-    return output.sum() == finalize_rank_vote(n, final_map, output).sum()
+    assert output.sum() == finalize_rank_vote(n, final_map, output).sum()
 
 
 @pytest.mark.unit
@@ -408,6 +408,200 @@ def test_update_rank_vote():
     )
 
     assert output.sum() == expected_output.sum()
+
+
+@pytest.mark.unit
+def test_update_median_inital_value():
+    """Tests morpheus_core.helpers.label_helper.update_rank_vote"""
+
+    window_shape = (10, 10)
+    total_shape = (100, 100)
+    actual_median_step = np.zeros([*total_shape, 2], dtype=np.float32)
+    stride = (1, 1)
+    current_idx = (0, 0)
+
+    update_mask = np.ones(window_shape)
+    n = np.zeros(total_shape, dtype=np.float32)
+    x_n = np.ones(window_shape, dtype=np.float32) * 2
+    update_mask = np.ones(window_shape, dtype=int)
+
+    lh.update_median(
+        update_mask,
+        stride,
+        n,
+        actual_median_step,
+        x_n,
+        current_idx,
+    )
+
+    expected_median = np.zeros_like(actual_median_step)
+    expected_median[:10, :10, 0] = 2.0
+    expected_median[:10, :10, 1] = 1.0
+
+    np.testing.assert_array_equal(actual_median_step, expected_median)
+
+@pytest.mark.unit
+def test_update_median_inital_value_FAME_MIN():
+    """Tests morpheus_core.helpers.label_helper.update_rank_vote"""
+
+    window_shape = (10, 10)
+    total_shape = (100, 100)
+    actual_median_step = np.zeros([*total_shape, 2], dtype=np.float32)
+    stride = (1, 1)
+    current_idx = (0, 0)
+
+    update_mask = np.ones(window_shape)
+    n = np.zeros(total_shape, dtype=np.float32)
+    x_n = np.ones(window_shape, dtype=np.float32) * 2
+    update_mask = np.ones(window_shape, dtype=int)
+
+    lh.FAME_MIN_STEP = np.array(3.0, dtype=np.float32)
+
+    lh.update_median(
+        update_mask,
+        stride,
+        n,
+        actual_median_step,
+        x_n,
+        current_idx,
+    )
+
+    expected_median = np.zeros_like(actual_median_step)
+    expected_median[:10, :10, 0] = 2.0
+    expected_median[:10, :10, 1] = lh.FAME_MIN_STEP
+
+    np.testing.assert_array_equal(actual_median_step, expected_median)
+
+@pytest.mark.unit
+def test_update_median_update_up():
+    """Tests morpheus_core.helpers.label_helper.update_rank_vote"""
+
+    window_shape = (10, 10)
+    total_shape = (100, 100)
+    actual_median_step = np.zeros([*total_shape, 2], dtype=np.float32)
+    actual_median_step[:10, :10, 0] = 2.0
+    actual_median_step[:10, :10, 1] = 1.0
+    stride = (1, 1)
+    current_idx = (0, 0)
+
+    update_mask = np.ones(window_shape)
+    n = np.ones(total_shape, dtype=np.float32) * 2
+    x_n = np.ones(window_shape, dtype=np.float32) * 5
+    update_mask = np.ones(window_shape, dtype=int)
+
+    lh.update_median(
+        update_mask,
+        stride,
+        n,
+        actual_median_step,
+        x_n,
+        current_idx,
+    )
+
+    expected_median = np.zeros_like(actual_median_step)
+    expected_median[:10, :10, 0] = 3.0
+    expected_median[:10, :10, 1] = 1.0
+
+    np.testing.assert_array_equal(actual_median_step, expected_median)
+
+@pytest.mark.unit
+def test_update_median_update_down():
+    """Tests morpheus_core.helpers.label_helper.update_rank_vote"""
+
+    window_shape = (10, 10)
+    total_shape = (100, 100)
+    actual_median_step = np.zeros([*total_shape, 2], dtype=np.float32)
+    actual_median_step[:10, :10, 0] = 2.0
+    actual_median_step[:10, :10, 1] = 1.0
+    stride = (1, 1)
+    current_idx = (0, 0)
+
+    update_mask = np.ones(window_shape)
+    n = np.ones(total_shape, dtype=np.float32) * 2
+    x_n = np.ones(window_shape, dtype=np.float32) * -5
+    update_mask = np.ones(window_shape, dtype=int)
+
+    lh.update_median(
+        update_mask,
+        stride,
+        n,
+        actual_median_step,
+        x_n,
+        current_idx,
+    )
+
+    expected_median = np.zeros_like(actual_median_step)
+    expected_median[:10, :10, 0] = 1.0
+    expected_median[:10, :10, 1] = 1.0
+
+    np.testing.assert_array_equal(actual_median_step, expected_median)
+
+
+@pytest.mark.unit
+def test_update_median_update_step_size():
+    """Tests morpheus_core.helpers.label_helper.update_rank_vote"""
+
+    window_shape = (10, 10)
+    total_shape = (100, 100)
+    actual_median_step = np.zeros([*total_shape, 2], dtype=np.float32)
+    actual_median_step[:10, :10, 0] = 2.0
+    actual_median_step[:10, :10, 1] = 1.0
+    stride = (1, 1)
+    current_idx = (0, 0)
+
+    update_mask = np.ones(window_shape)
+    n = np.ones(total_shape, dtype=np.float32) * 2
+    x_n = np.ones(window_shape, dtype=np.float32) * 2
+    update_mask = np.ones(window_shape, dtype=int)
+
+    lh.update_median(
+        update_mask,
+        stride,
+        n,
+        actual_median_step,
+        x_n,
+        current_idx,
+    )
+
+    expected_median = np.zeros_like(actual_median_step)
+    expected_median[:10, :10, 0] = 2.0
+    expected_median[:10, :10, 1] = 0.5
+
+    np.testing.assert_array_equal(actual_median_step, expected_median)
+
+
+@pytest.mark.unit
+def test_update_median_update_no_os():
+    """Tests morpheus_core.helpers.label_helper.update_rank_vote"""
+
+    window_shape = (10, 10)
+    total_shape = (100, 100)
+    actual_median_step = np.zeros([*total_shape, 2], dtype=np.float32)
+    actual_median_step[:10, :10, 0] = 2.0
+    actual_median_step[:10, :10, 1] = 10.0
+    stride = (1, 1)
+    current_idx = (0, 0)
+
+    update_mask = np.ones(window_shape)
+    n = np.ones(total_shape, dtype=np.float32) * 2
+    x_n = np.ones(window_shape, dtype=np.float32) * 5
+    update_mask = np.ones(window_shape, dtype=int)
+
+    lh.FAME_NO_OS = True
+    lh.update_median(
+        update_mask,
+        stride,
+        n,
+        actual_median_step,
+        x_n,
+        current_idx,
+    )
+
+    expected_median = np.zeros_like(actual_median_step)
+    expected_median[:10, :10, 0] = 5.0
+    expected_median[:10, :10, 1] = 5.0
+
+    np.testing.assert_array_equal(actual_median_step, expected_median)
 
 
 if __name__ == "__main__":

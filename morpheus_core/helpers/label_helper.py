@@ -28,6 +28,8 @@ from astropy.io import fits
 
 from morpheus_core.helpers import fits_helper
 
+FAME_MIN_STEP = np.array(0.5, dtype=np.float32)
+FAME_NO_OS = False
 
 def get_mean_var_array(
     shape: Union[List[int], Tuple[int]], write_to: str = None
@@ -519,11 +521,51 @@ def update_median(
 
     y, x = output_idx
     window_y, window_x = update_mask.shape
-    ys = slice(y, y + window_y)
-    xs = slice(x, x + window_x)
+    global_ys = slice(y, y + window_y)
+    global_xs = slice(x, x + window_x)
 
     update_n(update_mask, n, output_idx)
 
-    # get the current median and step values
-    # check if we need to initiaize the median and step values
-    # update median and step values
+    initialized = n[global_ys, global_xs].copy() > 1
+    prev_median = output[global_ys, global_xs, 0].copy()
+    prev_step = output[global_ys, global_xs, 1].copy()
+
+    # initialize the median and step values
+    # algorithm 1 lines 2,3
+    needs_init = np.logical_and(~initialized, update_mask)
+    prev_median[needs_init] = single_output[needs_init]
+    prev_step[needs_init] = np.maximum(
+        np.abs(single_output[needs_init] / 2), FAME_MIN_STEP
+    )
+
+    # update the median
+    # algorithm 1 lines 4-9
+    needs_update = np.logical_and(initialized, update_mask)
+
+    if FAME_NO_OS:
+        # update the median without overshoot, Section 3 right after algorithm 1
+        ys, xs = np.nonzero(np.logical_and(
+            needs_update,
+            np.logical_and(
+                single_output < prev_median + prev_step,
+                single_output > prev_median - prev_step
+            )
+        ))
+        prev_median[ys, xs] = single_output[ys, xs]
+    else:
+        ys, xs = np.nonzero(np.logical_and(needs_update, prev_median < single_output))
+        prev_median[ys, xs] = prev_median[ys, xs] + prev_step[ys, xs]
+
+        ys, xs = np.nonzero(np.logical_and(needs_update, prev_median > single_output))
+        prev_median[ys, xs] = prev_median[ys, xs] - prev_step[ys, xs]
+
+    # update the step values
+    # algorithm 1 lines 10-12
+    ys, xs = np.nonzero(
+        np.logical_and(needs_update, np.abs(single_output - prev_median) < prev_step)
+    )
+    prev_step[ys, xs] = prev_step[ys, xs] / 2
+
+    # update the output
+    output[global_ys, global_xs, 0] = prev_median
+    output[global_ys, global_xs, 1] = prev_step

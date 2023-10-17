@@ -42,11 +42,14 @@ class AGGREGATION_METHODS:
 
     MEAN_VAR = "mean_var"
     RANK_VOTE = "rank_vote"
+    MEDIAN = "median"
+    MEDIAN_NO_OS = "median_no_os"
 
     INVALID_ERR = " ".join(
         [
             "Invalid aggregation method please select one of",
             "AGGREGATION_METHODS.MEAN_VAR or AGGREGATION_METHODS.RANK_VOTE",
+            "or AGGREGATION_METHODS.MEDIAN or AGGREGATION_METHODS.MEDIAN_NO_OS",
         ]
     )
 
@@ -246,7 +249,17 @@ def predict_arrays(
         hdul_lbl, arr_lbl = label_helper.get_rank_vote_array(
             out_shape, out_dir_f("output.fits")
         )
+    elif aggregate_method == AGGREGATION_METHODS.MEDIAN:
+        hdul_lbl, arr_lbl = label_helper.get_median_array(
+            out_shape, out_dir_f("output.fits")
+        )
+    elif aggregate_method == AGGREGATION_METHODS.MEDIAN_NO_OS:
+        label_helper.FAME_NO_OS = True
+        hdul_lbl, arr_lbl = label_helper.get_median_array(
+            out_shape, out_dir_f("output.fits")
+        )
     else:
+
         raise ValueError(AGGREGATION_METHODS.INVALID_ERR)
 
     hdul_n, arr_n = label_helper.get_n_array(out_shape[:-1], out_dir_f("n.fits"))

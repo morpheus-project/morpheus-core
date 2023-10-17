@@ -199,6 +199,42 @@ def test_predict_arrays_mean_var():
 
 
 @pytest.mark.integration
+def test_predict_arrays_median():
+    """Tests morpheus_core.predict_arrays with mean_var aggergation"""
+    total_shape = (100, 100, 1)
+
+    model = lambda x: np.ones_like(x[0])
+    model_inputs = [np.ones(total_shape)]
+    n_classes = 1
+    batch_size = 10
+    window_size = (10, 10)
+    stride = (1, 1)
+    dilation = 1
+    update_map = np.ones(window_size)
+    aggregate_method = morpheus_core.AGGREGATION_METHODS.MEDIAN
+    out_dir = None
+
+    _, outputs = morpheus_core.predict_arrays(
+        model,
+        model_inputs,
+        n_classes,
+        batch_size,
+        window_size,
+        dilation,
+        stride,
+        update_map,
+        aggregate_method,
+        out_dir,
+    )
+    out_lbl, out_n = outputs
+
+    assert out_lbl.sum() == 100 * 100
+    assert out_lbl.shape == (100, 100, 1, 2)
+    np.testing.assert_array_equal(out_n[0, :10], np.arange(10) + 1)
+
+
+
+@pytest.mark.integration
 def test_predict_arrays_mean_var_super_resolution():
     """Tests morpheus_core.predict_arrays with mean_var aggergation"""
     total_shape = (100, 100, 1)
